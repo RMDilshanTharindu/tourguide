@@ -1,29 +1,53 @@
+import fs from "fs";
 import { ingestion } from "./ingest.js";
 import { queryVectorDb } from "./queringVectors.js";
+import { identifyImageSubject } from "./imagehandle.js";
 
 async function main() {
   try {
     console.log("Starting ingestion...");
 
-    // 1. build vector DB
     const vectorDb = await ingestion();
 
     console.log(`Total vectors: ${vectorDb.length}`);
 
-    // 2. test query
+    // ---------------- QUERY TEXT ----------------
     const question = "What is Sigiriya?";
 
-    console.log("\nSearching...");
+    console.log("\nSearching text...");
 
-    const results = await queryVectorDb(question, vectorDb);
+    const textResults = await queryVectorDb(question, vectorDb);
 
-    console.log("\nTop Results:\n");
+    console.log("\nTop Text Results:\n");
 
-    results.forEach((r, i) => {
+    textResults.forEach((r, i) => {
       console.log(`#${i + 1}`);
-      console.log("Text:", r.text);
-      console.log("Score:", r.score);
-      console.log("--------------------");
+      console.log(r.text);
+      console.log(r.score);
+    });
+
+    // ---------------- IMAGE PART ----------------
+    const imagePath = "./images/Sigiriya.jpeg";
+
+    const imageBuffer = fs.readFileSync(imagePath);
+    const base64Image = imageBuffer.toString("base64");
+
+    const identifiedSubject = await identifyImageSubject(
+      base64Image,
+      "image/jpeg"
+    );
+
+    // ---------------- IMAGE-BASED SEARCH ----------------
+    console.log("\nSearching about image...");
+
+    const imageResults = await queryVectorDb(identifiedSubject, vectorDb);
+
+    console.log("\nTop Image Results:\n");
+
+    imageResults.forEach((r, i) => {
+      console.log(`#${i + 1}`);
+      console.log(r.text);
+      console.log(r.score);
     });
 
   } catch (err) {

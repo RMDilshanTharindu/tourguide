@@ -22,3 +22,31 @@ git commit -m "feat: implement complete RAG pipeline with document ingestion and
   - Clean separation between ingestion and retrieval logic
 
 This commit establishes a working prototype of a Retrieval-Augmented Generation system using Node.js and Gemini embeddings."
+
+
+
+
+
+
+git commit -m "feat: add multimodal RAG system with image-based query support
+
+- Added image understanding pipeline using Gemini Vision model
+  - Implemented identifyImageSubject() to analyze uploaded images
+  - Converts images into descriptive text labels using AI vision model
+
+- Integrated image-to-text retrieval system
+  - Converts image into base64 format
+  - Extracts semantic subject from image
+  - Uses extracted subject to query vector database
+
+- Updated server pipeline (server.js)
+  - Supports both text-based and image-based queries
+  - Combines traditional RAG with multimodal search capability
+  - Separates text search and image-driven retrieval flow
+
+- Improved system architecture
+  - Introduced cross-modal retrieval (image → text embeddings)
+  - Fixed async handling and function naming issues
+  - Cleaned duplicate variables and improved flow structure
+
+This commit upgrades the project from a basic RAG system to a multimodal retrieval system capable of understanding both text and images."
