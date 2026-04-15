@@ -1,9 +1,9 @@
 import fs from "fs";
-import { ingestion } from "./ingest.js";
-import { queryVectorDb } from "./queringVectors.js";
-import { identifyImageSubject } from "./imagehandle.js";
-import { chat } from "./chat.js";
-import { generateResponse } from "./responseGenerator.js";
+import { ingestion } from "./src/rag/ingest.js";
+import { queryVectorDb } from "./src/rag/queringVectors.js";
+import { identifyImageSubject } from "./src/rag/imagehandle.js";
+import { chat } from "./src/rag/chat.js";
+import { generateResponse } from "./src/rag/responseGenerator.js";
 
 async function main() {
   try {
