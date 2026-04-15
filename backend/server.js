@@ -2,6 +2,7 @@ import fs from "fs";
 import { ingestion } from "./ingest.js";
 import { queryVectorDb } from "./queringVectors.js";
 import { identifyImageSubject } from "./imagehandle.js";
+import { chat } from "./chat.js";
 
 async function main() {
   try {
@@ -9,24 +10,20 @@ async function main() {
 
     const vectorDb = await ingestion();
 
-    console.log(`Total vectors: ${vectorDb.length}`);
+    console.log(` Total vectors: ${vectorDb.length}`);
 
-    // ---------------- QUERY TEXT ----------------
+    // ---------------- TEXT SEARCH ----------------
     const question = "What is Sigiriya?";
 
-    console.log("\nSearching text...");
+    console.log("\n Text Search...");
 
     const textResults = await queryVectorDb(question, vectorDb);
 
-    console.log("\nTop Text Results:\n");
-
     textResults.forEach((r, i) => {
-      console.log(`#${i + 1}`);
-      console.log(r.text);
-      console.log(r.score);
+      console.log(`#${i + 1}`, r.text, r.score);
     });
 
-    // ---------------- IMAGE PART ----------------
+    // ---------------- IMAGE SEARCH ----------------
     const imagePath = "./images/Sigiriya.jpeg";
 
     const imageBuffer = fs.readFileSync(imagePath);
@@ -37,18 +34,27 @@ async function main() {
       "image/jpeg"
     );
 
-    // ---------------- IMAGE-BASED SEARCH ----------------
-    console.log("\nSearching about image...");
+    console.log("\n Image Subject:", identifiedSubject);
 
     const imageResults = await queryVectorDb(identifiedSubject, vectorDb);
 
-    console.log("\nTop Image Results:\n");
-
     imageResults.forEach((r, i) => {
-      console.log(`#${i + 1}`);
-      console.log(r.text);
-      console.log(r.score);
+      console.log(`#${i + 1}`, r.text, r.score);
     });
+
+    // ---------------- CHAT ----------------
+    let chatHistory = [];
+
+    const latestMessage = "Tell me about Gal wiharaya";
+
+    chatHistory.push({ role: "user", text: latestMessage });
+
+    const response = await chat(latestMessage, vectorDb, chatHistory);
+
+    chatHistory.push({ role: "assistant", text: response });
+
+    console.log("\nAI Response:\n");
+    console.log(response);
 
   } catch (err) {
     console.error("Error:", err);

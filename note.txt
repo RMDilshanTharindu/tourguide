@@ -50,3 +50,27 @@ git commit -m "feat: add multimodal RAG system with image-based query support
   - Cleaned duplicate variables and improved flow structure
 
 This commit upgrades the project from a basic RAG system to a multimodal retrieval system capable of understanding both text and images."
+
+
+
+
+
+git commit -m "feat: add multimodal RAG chat system with image understanding and conversational AI
+
+- Introduced chat layer (chat.js) for LLM-based response generation
+  - Integrated Gemini generative model for context-aware answers
+  - Added support for chat history for conversational memory
+  - Combined retrieved vector context with user queries
+
+- Enhanced server pipeline (server.js)
+  - Integrated text-based RAG search flow
+  - Added image understanding pipeline using Gemini Vision
+  - Combined image-to-text conversion with vector retrieval
+  - Integrated chat system with RAG context
+
+- Improved system architecture
+  - Unified text RAG, image RAG, and chat into single pipeline
+  - Ensured async flow consistency across all modules
+  - Fixed integration issues between ingestion, retrieval, and generation
+
+This commit transforms the project into a multimodal RAG chatbot capable of understanding text, images, and generating contextual AI responses."
