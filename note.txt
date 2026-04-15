@@ -74,3 +74,18 @@ git commit -m "feat: add multimodal RAG chat system with image understanding and
   - Fixed integration issues between ingestion, retrieval, and generation
 
 This commit transforms the project into a multimodal RAG chatbot capable of understanding text, images, and generating contextual AI responses."
+
+
+
+
+
+git commit -m "chore: update project configuration and entry point
+
+- Changed main entry from rag.js to server.js
+- Added npm scripts for better workflow:
+  - npm start → runs main server
+  - npm run ingest → runs ingestion pipeline
+- Updated project metadata (description, keywords, author)
+- Improved project structure for multimodal RAG system
+
+This commit aligns package configuration with the current architecture, which now includes ingestion, vector search, image understanding, and chat system."

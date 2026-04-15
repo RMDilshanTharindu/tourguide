@@ -1,13 +1,21 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "rag.js",
+  "description": "Multimodal RAG system with text, image understanding and chat using Gemini AI",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "ingest": "node ingest.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "RAG",
+    "AI",
+    "Gemini",
+    "vector-search",
+    "multimodal",
+    "chatbot"
+  ],
+  "author": "Dilshan Tharindu",
   "license": "ISC",
   "type": "module"
 }
