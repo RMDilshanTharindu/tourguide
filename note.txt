@@ -1,0 +1,24 @@
+git commit -m "feat: implement complete RAG pipeline with document ingestion and vector search
+
+- Added document ingestion system (ingest.js)
+  - Reads files from uploads directory
+  - Splits documents into overlapping chunks
+  - Generates embeddings using Gemini API
+  - Stores vector representations in memory (vectorDb)
+
+- Implemented vector search engine (queringVectors.js)
+  - Added cosine similarity function for embedding comparison
+  - Retrieves top-K most relevant document chunks
+  - Supports query embedding generation using Gemini
+
+- Created pipeline test runner (server.js)
+  - Orchestrates ingestion and querying flow
+  - Tests full RAG pipeline end-to-end
+  - Logs ingestion stats and search results
+
+- Improved architecture
+  - Removed global state dependency issues
+  - Ensured ingestion returns vector database explicitly
+  - Clean separation between ingestion and retrieval logic
+
+This commit establishes a working prototype of a Retrieval-Augmented Generation system using Node.js and Gemini embeddings."
