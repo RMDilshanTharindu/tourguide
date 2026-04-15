@@ -89,3 +89,24 @@ git commit -m "chore: update project configuration and entry point
 - Improved project structure for multimodal RAG system
 
 This commit aligns package configuration with the current architecture, which now includes ingestion, vector search, image understanding, and chat system."
+
+
+
+
+
+git commit -m "feat: add structured response generator for RAG system
+
+- Introduced responseGenerator.js to handle LLM-based answer generation
+- Combined retrieved vector chunks with user query for context-aware responses
+- Implemented strict JSON output format:
+  {
+    "context-about": "<topic>",
+    "response": "<final answer>"
+  }
+
+- Added prompt engineering for Gemini model to ensure structured output
+- Implemented fallback handling for invalid JSON responses
+- Enhanced RAG pipeline by adding final generation layer after retrieval
+
+This commit completes the full RAG architecture:
+ingestion → retrieval → generation → structured response output for frontend integration"

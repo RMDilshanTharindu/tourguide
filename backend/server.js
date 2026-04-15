@@ -3,6 +3,7 @@ import { ingestion } from "./ingest.js";
 import { queryVectorDb } from "./queringVectors.js";
 import { identifyImageSubject } from "./imagehandle.js";
 import { chat } from "./chat.js";
+import { generateResponse } from "./responseGenerator.js";
 
 async function main() {
   try {
@@ -22,6 +23,11 @@ async function main() {
     textResults.forEach((r, i) => {
       console.log(`#${i + 1}`, r.text, r.score);
     });
+
+    //generate final response
+    console.log("\n\nGenerating Proper Responce using LLM......")
+    const finalResponse = await generateResponse(question, textResults);
+    console.log("\nFinal Responce :\n",finalResponse)
 
     // ---------------- IMAGE SEARCH ----------------
     const imagePath = "./images/Sigiriya.jpeg";
