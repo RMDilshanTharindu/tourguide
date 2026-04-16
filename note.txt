@@ -472,3 +472,28 @@ Store sessionId in localStorage
 After image upload → call /set-image-context
 Enable “Ask More” button → redirects to chat page with same sessionId
 Load history using /chat/history/:sessionId on page load
+
+
+
+
+git commit -m "docs: add complete frontend integration guide and Swagger API documentation
+
+- Added comprehensive frontend developer guide covering all API usage scenarios
+- Documented 3 core user flows:
+  - Direct chat flow (/chat)
+  - Image-only search flow (/image-search)
+  - Image-to-chat conversational flow (/image-search → /chat/set-image-context → /chat)
+
+- Included detailed request/response examples for all endpoints
+- Explained session-based memory handling using sessionId
+- Defined image context workflow for multimodal conversational AI system
+- Provided step-by-step integration instructions for frontend developers
+- Added system behavior overview and UX flow explanation
+
+- Added Swagger (OpenAPI 3.0) documentation support:
+  - Structured API specification for all endpoints
+  - Includes /chat, /chat/history, /chat/set-image-context, and /image-search
+  - Enables interactive API testing and documentation UI
+  - Improves developer experience and API discoverability
+
+This completes full developer-ready documentation for a multimodal RAG backend system with interactive API docs."

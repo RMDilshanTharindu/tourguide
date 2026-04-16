@@ -5,6 +5,11 @@ import createSearchRoutes from "./src/routes/searchRoutes.js";
 import createImageRoutes from "./src/routes/imageRoutes.js";
 import createChatRoutes from "./src/routes/chatRoutes.js";
 
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
+
+const swaggerDoc = YAML.load("./swagger.yaml");
+
 const app = express();
 app.use(express.json());
 
@@ -19,6 +24,10 @@ async function init() {
   app.use("/api", createSearchRoutes(vectorDb));
   app.use("/api", createImageRoutes(vectorDb));
   app.use("/api", createChatRoutes(vectorDb));
+
+  //api documenaion
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+
 }
 
 await init();
