@@ -204,3 +204,133 @@ response:
         "response": "The Gal Viharaya, or Uttararama, is a 12th-century rock temple in Polonnaruwa, Sri Lanka, created by King Parakramabahu I. It features four Buddha statues carved into granite: a 7-meter standing image with crossed arms, a 14.12-meter reclining image depicting Parinirvana, and a seated image within the Vidyhadhara Guha cave."
     }
 }
+
+
+
+
+
+
+
+
+
+git commit -m "refactor: improve chat system architecture by separating retrieval and LLM layers
+
+- Refactored chat.js to decouple vector retrieval from LLM generation
+- Moved queryVectorDb responsibility out of chat module (API layer now handles retrieval)
+- Improved prompt engineering with structured formatting for:
+  - Context chunks
+  - Chat history (role-based formatting)
+  - User message separation
+- Enhanced LLM instructions for better grounding and response consistency
+- Cleaned function signature for better modularity and reusability
+
+This improves scalability and aligns chat system with production-grade RAG architecture:
+Retrieval (API layer) → Context preparation → LLM generation"
+
+---
+
+#Chat API Usage Instructions
+
+## 1. Start a Chat Session
+
+### Endpoint
+
+```
+POST /api/chat
+```
+
+### Description
+
+Sends a user message to the AI. The API uses:
+
+* vector database (RAG retrieval)
+* previous chat history (memory)
+* LLM (Gemini) to generate response
+
+### Request Body (JSON)
+
+```json
+{
+  "sessionId": "user123",
+  "message": "Tell me about Sigiriya"
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "sessionId": "user123",
+  "response": "Sigiriya is an ancient rock fortress in Sri Lanka...",
+  "history": [
+    { "role": "user", "text": "Tell me about Sigiriya" },
+    { "role": "assistant", "text": "Sigiriya is..." }
+  ]
+}
+```
+
+---
+
+## 2. Get Chat History
+
+### Endpoint
+
+```
+GET /api/chat/history/:sessionId
+```
+
+### Description
+
+Returns full conversation history for a given session.
+
+### Example Request
+
+```
+GET /api/chat/history/user123
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "sessionId": "user123",
+  "history": [
+    { "role": "user", "text": "Tell me about Sigiriya" },
+    { "role": "assistant", "text": "Sigiriya is..." }
+  ]
+}
+```
+
+---
+
+## 3. How Chat Flow Works (Important)
+
+1. Frontend sends `message + sessionId`
+2. Backend:
+
+   * retrieves relevant knowledge (RAG)
+   * uses chat history for context
+   * generates AI response
+3. Response is returned + stored in session memory
+
+---
+
+## Important Notes
+
+* `sessionId` is required to maintain conversation memory
+* Each user should have a unique sessionId (e.g. user ID or UUID)
+* Chat history is stored in-memory (resets if server restarts)
+* Use `/chat/history` to restore UI state on refresh
+
+---
+
+## Frontend Tip
+
+* Call `/api/chat` on every user message
+* Append response to chat UI immediately
+* Optionally load history on page load using `/chat/history`
+
+---
+

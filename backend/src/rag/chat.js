@@ -1,45 +1,43 @@
 import { GoogleGenAI } from "@google/genai";
-import { queryVectorDb } from "./queringVectors.js";
 
-// Gemini init
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
 });
 
-export async function chat(latestMessage, vectorDb, chatHistory = []) {
+export async function chat(latestMessage, contextChunks, chatHistory = []) {
 
   try {
-    // 1. Retrieve context
-    console.log(" Retrieving context from knowledge base...");
 
-    const contextChunks = await queryVectorDb(latestMessage, vectorDb);
-
-    const context = contextChunks
-      .map(c => c.text)
-      .join("\n\n");
-
-    console.log("Context ready");
-
-    // 2. Generate response
     console.log("Generating response...");
+
+    const context = contextChunks.map(c => c.text).join("\n\n");
+
+    const formattedHistory = chatHistory
+      .map(m => `${m.role}: ${m.text}`)
+      .join("\n");
 
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `
-Context:
+You are a helpful AI assistant for a tourism RAG system.
+
+CONTEXT:
 ${context}
 
-Chat History:
-${JSON.stringify(chatHistory)}
+CHAT HISTORY:
+${formattedHistory}
 
-User Question:
+USER:
 ${latestMessage}
 
-Answer clearly based on context. If not found, say you don't know.
-      `
+RULES:
+- Use context if relevant
+- If not found, say you don't know
+- Be clear and concise
+`
     });
 
-    return response.text;
+    return response.text?.trim();
 
   } catch (err) {
     console.error("Chat error:", err);
