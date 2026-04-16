@@ -110,3 +110,40 @@ git commit -m "feat: add structured response generator for RAG system
 
 This commit completes the full RAG architecture:
 ingestion → retrieval → generation → structured response output for frontend integration"
+
+
+
+
+
+git commit -m "feat: convert RAG pipeline into REST API with modular routing
+
+- Integrated Express.js server to expose backend functionality via HTTP APIs
+- Implemented POST /api/search/text endpoint for semantic search + LLM response generation
+- Refactored project structure:
+  - Moved AI logic into src/rag module
+  - Introduced src/routes for API route handling
+- Added searchRoutes module with dependency injection (vectorDb)
+- Initialized vector database at server startup for efficient querying
+- Connected retrieval (vector search) with generation (LLM) to produce structured JSON responses
+
+This marks the transition from a standalone script to a scalable API-based RAG backend, ready for frontend integration."
+
+
+request:
+
+POST    http://localhost:3000/api/search/text
+
+{
+  "query": "What is Sigiriya?"
+}
+
+
+response:
+
+{
+    "success": true,
+    "data": {
+        "context-about": "Sigiriya",
+        "response": "Sigiriya, also known as Lion Rock, is a historical site and UNESCO World Heritage Site in Sri Lanka. Built in the 5th century AD by King Kashyapa, it served as a royal palace and fortress featuring advanced urban planning, water gardens, and frescoes."
+    }
+}

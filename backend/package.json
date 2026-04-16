@@ -17,5 +17,9 @@
   ],
   "author": "Dilshan Tharindu",
   "license": "ISC",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^1.50.1",
+    "express": "^5.2.1"
+  }
 }
