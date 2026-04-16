@@ -1,6 +1,8 @@
 import express from "express";
 import { ingestion } from "./src/rag/ingest.js";
+
 import createSearchRoutes from "./src/routes/searchRoutes.js";
+import createImageRoutes from "./src/routes/imageRoutes.js";
 
 const app = express();
 app.use(express.json());
@@ -14,6 +16,7 @@ async function init() {
 
   //attach routes AFTER DB ready
   app.use("/api", createSearchRoutes(vectorDb));
+  app.use("/api", createImageRoutes(vectorDb));
 }
 
 await init();

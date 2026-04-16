@@ -147,3 +147,60 @@ response:
         "response": "Sigiriya, also known as Lion Rock, is a historical site and UNESCO World Heritage Site in Sri Lanka. Built in the 5th century AD by King Kashyapa, it served as a royal palace and fortress featuring advanced urban planning, water gardens, and frescoes."
     }
 }
+
+
+
+
+
+
+git commit -m "feat: add image-based search API with multimodal RAG pipeline
+
+- Implemented POST /api/image-search endpoint using Express
+- Added multer for handling image uploads (multipart/form-data)
+- Integrated image understanding using Gemini to identify subject from images
+- Converted uploaded images to base64 for AI processing
+- Connected identified subject to vector search (RAG retrieval)
+- Integrated LLM response generation based on retrieved context
+
+- Added topic extraction (2–3 words) from identified image subject for frontend usage
+- Structured API response to include:
+  - topic (short label)
+  - identifiedSubject (full description)
+  - context-aware generated response
+
+- Created modular imageRoutes under src/routes
+- Maintained clean separation between API layer and RAG logic
+
+This introduces multimodal capabilities (image → text → knowledge retrieval → response),
+significantly enhancing the system towards a real-world AI assistant backend."
+
+
+
+request:
+
+Enter URL
+
+http://localhost:3000/api/image-search
+
+Set request type : POST 
+
+Go to Body
+Select form-data
+Add image file
+Key: image
+Type: File
+Value: Upload any image (e.g., image.jpeg)
+Send request
+
+
+response:
+
+{
+    "success": true,
+    "topic": "Gal Vihara (Polonnaruwa,",
+    "identifiedSubject": "Gal Vihara (Polonnaruwa, Sri Lanka)",
+    "data": {
+        "context-about": "Gal Viharaya",
+        "response": "The Gal Viharaya, or Uttararama, is a 12th-century rock temple in Polonnaruwa, Sri Lanka, created by King Parakramabahu I. It features four Buddha statues carved into granite: a 7-meter standing image with crossed arms, a 14.12-meter reclining image depicting Parinirvana, and a seated image within the Vidyhadhara Guha cave."
+    }
+}
