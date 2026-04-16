@@ -4,36 +4,51 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
 });
 
-export async function chat(latestMessage, contextChunks, chatHistory = []) {
-
+export async function chat(
+  latestMessage,
+  contextChunks,
+  chatHistory = [],
+  imageContext = null
+) {
   try {
 
-    console.log("Generating response...");
-
-    const context = contextChunks.map(c => c.text).join("\n\n");
+    const context = contextChunks
+      .map(c => c.text)
+      .join("\n\n");
 
     const formattedHistory = chatHistory
       .map(m => `${m.role}: ${m.text}`)
       .join("\n");
 
+    const imageBlock = imageContext
+      ? `IMAGE CONTEXT: ${imageContext}`
+      : "";
+
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `
-You are a helpful AI assistant for a tourism RAG system.
+You are a tourism AI assistant.
 
+${imageBlock}
+
+-------------------
 CONTEXT:
 ${context}
 
+-------------------
 CHAT HISTORY:
 ${formattedHistory}
 
-USER:
+-------------------
+USER MESSAGE:
 ${latestMessage}
 
 RULES:
-- Use context if relevant
-- If not found, say you don't know
-- Be clear and concise
+- If image context exists, prioritize it strongly
+- Answer natural follow-up questions like location, history, etc.
+- Use context when available
+- If unknown, say you don't know
+- Be concise and helpful
 `
     });
 

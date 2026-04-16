@@ -334,3 +334,141 @@ GET /api/chat/history/user123
 
 ---
 
+
+
+
+
+
+git commit -m "feat: implement multimodal chat system with image-aware conversational memory
+
+- Added session-based chat memory system with in-memory storage
+- Introduced image context persistence for image-first user flows
+- Created /api/chat/set-image-context endpoint to store visual context after image upload
+- Enhanced /api/chat endpoint to support:
+  - Direct RAG-based chat
+  - Image-context-aware conversation flow
+  - Unified session handling for both use cases
+
+- Improved chat architecture:
+  - Maintains per-session history (user + assistant messages)
+  - Injects image context into retrieval and LLM prompt when available
+  - Automatically switches between text-only and image-based reasoning
+
+- Added /api/chat/history endpoint for retrieving full conversation state
+- Updated LLM prompt engineering to prioritize image context when present
+
+This enables a seamless user experience where:
+Image upload → contextual understanding → continuous conversation (Ask More feature)
+
+System now supports fully interactive multimodal RAG conversations."
+
+
+
+
+1. Start Chat Session (Text Only)
+
+Endpoint
+POST /api/chat
+
+
+Description
+
+Send a message to the AI. The system uses:
+
+RAG (knowledge base retrieval)
+Chat history (session memory)
+Optional image context (if available)
+
+Request Body
+{
+  "sessionId": "user123",
+  "message": "What is Sigiriya?"
+}
+
+
+
+
+2. Set Image Context (After Image Upload)
+
+Endpoint
+POST /api/chat/set-image-context
+Description
+
+Used after /api/image-search. This stores the identified image subject for contextual chat.
+
+Request Body
+{
+  "sessionId": "user123",
+  "imageContext": "Sigiriya Rock Fortress in Sri Lanka"
+}
+
+
+
+
+3. Ask Follow-up Questions (Ask More Feature)
+
+After setting image context, users can ask natural questions like:
+
+“Where is it located?”
+“Who built it?”
+“Why is it famous?”
+
+Request Example
+POST /api/chat
+{
+  "sessionId": "user123",
+  "message": "Where is it located?"
+}
+
+
+The system automatically uses the stored image context.
+
+
+
+4. Get Chat History
+Endpoint
+GET /api/chat/history/:sessionId
+Description
+
+Returns full conversation history and image context.
+
+Example
+GET /api/chat/history/user123
+
+Response
+{
+  "success": true,
+  "history": [
+    { "role": "user", "text": "What is Sigiriya?" },
+    { "role": "assistant", "text": "Sigiriya is..." }
+  ],
+  "imageContext": "Sigiriya Rock Fortress in Sri Lanka"
+}
+
+
+
+5. System Flow Overview
+
+Text-only flow:
+User → /chat → RAG retrieval → AI response → history stored
+
+Image-based flow:
+Image upload → /image-search → identifiedSubject
+             → /set-image-context
+             → /chat (Ask more)
+             → AI uses image context + RAG
+
+
+Important Notes
+
+sessionId is required for all chat-related requests
+Image context is optional but enhances responses
+Chat history is stored in-memory (resets on server restart)
+Always call /set-image-context before asking follow-up image questions
+
+
+Frontend Tip
+Store sessionId in localStorage
+After image upload → call /set-image-context
+Enable “Ask More” button → redirects to chat page with same sessionId
+Load history using /chat/history/:sessionId on page load

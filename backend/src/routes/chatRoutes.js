@@ -1,33 +1,54 @@
 import express from "express";
 import { queryVectorDb } from "../rag/queringVectors.js";
 import { chat } from "../rag/chat.js";
-import { generateResponse } from "../rag/responseGenerator.js";
 
 const router = express.Router();
 
 // in-memory session store
-let chatSessions = {};
+const chatSessions = {};
 
-// GET CHAT HISTORY
-router.get("/chat/history/:sessionId", (req, res) => {
-  const { sessionId } = req.params;
+/*
+Session structure:
+chatSessions[sessionId] = {
+  history: [],
+  imageContext: null
+}
+*/
 
-  const history = chatSessions[sessionId] || [];
-
-  res.json({
-    success: true,
-    sessionId,
-    history
-  });
-});
-
-
-// CHAT API
 export default function createChatRoutes(vectorDb) {
 
-  router.post("/chat", async (req, res) => {
+  
+  // SET / UPDATE IMAGE CONTEXT
+    router.post("/chat/set-image-context", (req, res) => {
+    const { sessionId, imageContext } = req.body;
+
+    if (!sessionId || !imageContext) {
+      return res.status(400).json({
+        error: "sessionId and imageContext required"
+      });
+    }
+
+    if (!chatSessions[sessionId]) {
+      chatSessions[sessionId] = {
+        history: [],
+        imageContext: null
+      };
+    }
+
+    chatSessions[sessionId].imageContext = imageContext;
+
+    res.json({
+      success: true,
+      message: "Image context stored",
+      imageContext
+    });
+  });
+
+  
+  // CHAT API
+    router.post("/chat", async (req, res) => {
     try {
-      const { sessionId, message, mode } = req.body;
+      const { sessionId, message } = req.body;
 
       if (!sessionId || !message) {
         return res.status(400).json({
@@ -37,36 +58,70 @@ export default function createChatRoutes(vectorDb) {
 
       // init session
       if (!chatSessions[sessionId]) {
-        chatSessions[sessionId] = [];
+        chatSessions[sessionId] = {
+          history: [],
+          imageContext: null
+        };
       }
 
-      const history = chatSessions[sessionId];
+      const session = chatSessions[sessionId];
 
-      // 1. save user message
-      history.push({ role: "user", text: message });
+      // save user message
+      session.history.push({ role: "user", text: message });
 
-      console.log("User:", message);
+      // build query (RAG + image context)
+      const query = session.imageContext
+        ? `${message} ${session.imageContext}`
+        : message;
 
-      // 2. retrieve context (RAG)
-      const contextChunks = await queryVectorDb(message, vectorDb);
+      // retrieve context
+      const contextChunks = await queryVectorDb(query, vectorDb);
 
-      // 3. build prompt using chat history + context
-      const response = await chat(message, vectorDb, history, contextChunks);
+      // generate response
+      const response = await chat(
+        message,
+        contextChunks,
+        session.history,
+        session.imageContext
+      );
 
-      // 4. save assistant response
-      history.push({ role: "assistant", text: response });
+      // save assistant response
+      session.history.push({ role: "assistant", text: response });
 
       res.json({
         success: true,
         sessionId,
         response,
-        history
+        imageContext: session.imageContext,
+        history: session.history
       });
 
     } catch (err) {
-      console.error(err);
+      console.error("Chat error:", err);
       res.status(500).json({ error: "Chat failed" });
     }
+  });
+
+  // GET CHAT HISTORY
+  
+  router.get("/chat/history/:sessionId", (req, res) => {
+    const { sessionId } = req.params;
+
+    const session = chatSessions[sessionId];
+
+    if (!session) {
+      return res.json({
+        success: true,
+        history: [],
+        imageContext: null
+      });
+    }
+
+    res.json({
+      success: true,
+      history: session.history,
+      imageContext: session.imageContext
+    });
   });
 
   return router;
