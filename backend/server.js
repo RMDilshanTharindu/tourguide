@@ -4,6 +4,7 @@ import { ingestion } from "./src/rag/ingest.js";
 import createSearchRoutes from "./src/routes/searchRoutes.js";
 import createImageRoutes from "./src/routes/imageRoutes.js";
 import createChatRoutes from "./src/routes/chatRoutes.js";
+import authRoutes from "./src/routes/authRoutes.js";
 
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
@@ -26,6 +27,9 @@ async function init() {
   console.log("Starting ingestion...");
   vectorDb = await ingestion();
   console.log("Total vectors:", vectorDb.length);
+  
+  //authentication
+  app.use("/api/auth", authRoutes);
 
   //attach routes AFTER DB ready
   app.use("/api", createSearchRoutes(vectorDb));

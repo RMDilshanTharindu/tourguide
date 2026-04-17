@@ -512,3 +512,53 @@ git commit -m "feat: setup MongoDB connection using Mongoose with environment co
 - Connected MongoDB during server startup
 
 This establishes the foundation for persistent data storage, enabling future implementation of user authentication and chat history storage."
+
+
+
+
+
+
+git commit -m "feat: implement user authentication with JWT and secure password hashing
+
+- Added user authentication system with register and login endpoints
+- Created User model for storing user credentials in MongoDB
+- Implemented password hashing using bcrypt for secure storage
+- Added JWT-based authentication for session management
+- Created auth middleware to protect API routes using token verification
+- Integrated environment-based JWT secret configuration
+- Structured authentication routes under /api/auth
+
+This enables secure user management and lays the foundation for personalized chat history and protected API access."
+
+
+request:
+POST  http://localhost:3000/api/auth/register
+
+ {
+  "username": "dilshan",
+  "email": "dilshan@gmail.com",
+  "password": "123456"
+}
+
+response:
+{
+    "success": true,
+    "message": "User registered successfully"
+}
+
+
+
+request:
+POST  http://localhost:3000/api/auth/login
+
+{
+  "email": "dilshan@gmail.com",
+  "password": "123456"
+}
+
+response:
+
+{
+    "success": true,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWUxYTUzZmNmM2ZhZGI3NjVkNmQ2ZGMiLCJpYXQiOjE3NzYzOTU2MzksImV4cCI6MTc3NzAwMDQzOX0.r5W6dWo-3toKLyZd941fyDliRlxP-BAu7bJgTqM2Nk4"
+}
