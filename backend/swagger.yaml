@@ -1,42 +1,59 @@
 openapi: 3.0.0
 info:
   title: TourGuide AI RAG API
-  version: 1.0.0
+  version: 2.0.0
   description: |
-    Multimodal AI system supporting:
-    - Text-based RAG search
-    - Image understanding + contextual chat
-    - Session-based memory chat system
+    Multimodal AI system with:
+
+    -  JWT Authentication
+    -  Multi-chat system (chatId आधारित)
+    -  RAG-based responses
+    -  Image understanding + contextual chat
+    -  MongoDB persistent storage
 
 servers:
   - url: http://localhost:3000/api
 
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+tags:
+  - name: Auth
+  - name: Chat
+  - name: Image
+
 paths:
 
-  /chat:
+  # ---------------- AUTH ----------------
+  /auth/register:
     post:
-      summary: Send a chat message (RAG + memory + optional image context)
-      tags:
-        - Chat
+      summary: Register new user
+      tags: [Auth]
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - sessionId
-                - message
+              required: [username, email, password]
               properties:
-                sessionId:
+                username:
                   type: string
-                  example: user123
-                message:
+                  example: dilshan
+                email:
                   type: string
-                  example: What is Sigiriya?
+                  format: email
+                  example: dilshan@gmail.com
+                password:
+                  type: string
+                  example: 123456
       responses:
         200:
-          description: AI response generated successfully
+          description: User registered successfully
           content:
             application/json:
               schema:
@@ -44,67 +61,49 @@ paths:
                 properties:
                   success:
                     type: boolean
-                  sessionId:
-                    type: string
-                  response:
-                    type: string
-                  imageContext:
-                    type: string
-                    nullable: true
-                  history:
-                    type: array
-
-  /chat/set-image-context:
-    post:
-      summary: Store image context for conversational memory
-      tags:
-        - Chat
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - sessionId
-                - imageContext
-              properties:
-                sessionId:
-                  type: string
-                  example: user123
-                imageContext:
-                  type: string
-                  example: Sigiriya Rock Fortress in Sri Lanka
-      responses:
-        200:
-          description: Image context stored successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
+                    example: true
                   message:
                     type: string
-                  imageContext:
-                    type: string
+                    example: User registered successfully
 
-  /chat/history/{sessionId}:
-    get:
-      summary: Get chat history for a session
-      tags:
-        - Chat
-      parameters:
-        - in: path
-          name: sessionId
-          required: true
-          schema:
-            type: string
-          example: user123
+  /auth/login:
+    post:
+      summary: Login user and get JWT token
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
       responses:
         200:
-          description: Chat history retrieved
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
+  # ---------------- CHAT ----------------
+
+  /chat/create:
+    post:
+      summary: Create a new chat
+      tags: [Chat]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Chat created
           content:
             application/json:
               schema:
@@ -112,34 +111,148 @@ paths:
                 properties:
                   success:
                     type: boolean
-                  history:
+                  chatId:
+                    type: string
+
+  /chat:
+    get:
+      summary: Get all chats for logged-in user
+      tags: [Chat]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of chats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chats:
                     type: array
                     items:
                       type: object
+                      properties:
+                        _id:
+                          type: string
+                        title:
+                          type: string
+                        createdAt:
+                          type: string
+
+  /chat/{chatId}:
+    get:
+      summary: Get chat history
+      tags: [Chat]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Chat history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
                   imageContext:
                     type: string
                     nullable: true
 
+    post:
+      summary: Send message in a chat
+      tags: [Chat]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message:
+                  type: string
+                  example: Tell me about Sigiriya
+      responses:
+        200:
+          description: AI response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                  history:
+                    type: array
+                  imageContext:
+                    type: string
+                    nullable: true
+
+  /chat/{chatId}/image-context:
+    post:
+      summary: Set image context for a chat
+      tags: [Chat]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chatId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [imageContext]
+              properties:
+                imageContext:
+                  type: string
+                  example: Sigiriya Rock Fortress
+      responses:
+        200:
+          description: Context stored
+
+  # ---------------- IMAGE ----------------
+
   /image-search:
     post:
-      summary: Upload image and get AI understanding + RAG response
-      tags:
-        - Image
+      summary: Upload image and get AI + RAG response
+      tags: [Image]
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
-              required:
-                - image
+              required: [image]
               properties:
                 image:
                   type: string
                   format: binary
       responses:
         200:
-          description: Image processed successfully
+          description: Image processed
           content:
             application/json:
               schema:
@@ -149,7 +262,6 @@ paths:
                     type: boolean
                   topic:
                     type: string
-                    description: Short 2-3 word label
                   identifiedSubject:
                     type: string
                   data:

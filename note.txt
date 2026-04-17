@@ -666,3 +666,19 @@ API Behavior Changes:
 - Chat history and context are now persisted in MongoDB
 
 This upgrade transforms the system into a scalable, multi-conversation AI platform similar to modern chat-based applications."
+
+
+
+
+
+
+git commit -m "refactor: update API documentation"
+
+- Improved validation and structure of authentication requests
+
+Documentation updates:
+- Updated OpenAPI (Swagger) spec to include email in registration
+- Added format validation for email field
+- Updated login request schema to use 'identifier' instead of only username
+
+This improves authentication flexibility and aligns the system with standard production practices."
