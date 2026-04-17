@@ -20,6 +20,11 @@ const chatSchema = new mongoose.Schema(
       required: true
     },
 
+    title: {
+      type: String,
+      default: "New Chat"
+    },
+
     messages: [messageSchema],
 
     imageContext: {
@@ -27,9 +32,7 @@ const chatSchema = new mongoose.Schema(
       default: null
     }
   },
-  {
-    timestamps: true
-  }
+  { timestamps: true }
 );
 
 export default mongoose.model("Chat", chatSchema);

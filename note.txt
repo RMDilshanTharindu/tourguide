@@ -602,3 +602,67 @@ Note:
 Public routes such as authentication endpoints remain unaffected and accessible without tokens.
 
 This refactor improves maintainability and enforces consistent access control across the backend."
+
+
+
+
+
+git commit -m "feat: implement multi-chat system with MongoDB persistence and new chat APIs
+
+- Replaced in-memory chat sessions with MongoDB Chat model
+- Enabled multiple chats per user (one-to-many relationship)
+- Added chatId-based conversation handling
+- Stored chat messages and image context persistently
+- Secured all chat routes using JWT authentication (userId-based access)
+
+New API Endpoints:
+
+1. Create Chat
+POST /api/chat/create
+
+Response:
+{
+  "success": true,
+  "chatId": "<chatId>"
+}
+
+2. Send Message
+
+POST /api/chat/:chatId
+
+Headers:
+  Authorization: Bearer <token>
+Body:
+{
+  \"message\": \"Your question here\"
+}
+
+
+3. Get Chat History
+GET /api/chat/:chatId
+Headers:
+  Authorization: Bearer <token>
+
+
+4. List User Chats
+GET /api/chat
+Headers:
+  Authorization: Bearer <token>
+
+
+5. Set Image Context
+POST /api/chat/:chatId/image-context
+Headers:
+  Authorization: Bearer <token>
+Body:
+{
+  "imageContext": "Sigiriya Rock Fortress"
+}
+
+API Behavior Changes:
+- Removed sessionId-based chat handling
+- Introduced chatId for managing multiple conversations
+- All chat endpoints now require authentication via JWT
+- Chat history and context are now persisted in MongoDB
+
+This upgrade transforms the system into a scalable, multi-conversation AI platform similar to modern chat-based applications."
