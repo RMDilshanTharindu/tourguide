@@ -1,19 +1,18 @@
----
+# TourGuide AI Backend – Frontend Integration Guide (v2.0.0)
 
-# TourGuide AI Backend – Frontend Integration Guide
+This backend supports **3 user interaction modes** using JWT Authentication and MongoDB persistence:
 
-This backend supports **3 user interaction modes**:
-
-  Direct Chat (text-only RAG)
-  Image Search (single response)
-  Image → Chat (Ask More / conversational mode)
+1.  **Direct Chat** (Text-only RAG & History)
+2.  **Image Search** (Identification & Quick Info)
+3.  **Image → Chat** (Contextual Follow-up/Conversational)
 
 ---
 
-#  BASE URL
+# 🚀 BASE URL & AUTH
 
-```text id="base1"
-http://localhost:3000/api
+```text
+URL: http://localhost:3000/api
+Auth: Bearer Token (JWT) required for all /chat and /image endpoints.
 ```
 
 ---
@@ -23,277 +22,128 @@ http://localhost:3000/api
 ---
 
 ## Scenario 1: Direct Chat User
+**Behavior:** User creates a chat room and asks questions directly without an image.
 
-### User behavior:
-
-User opens chat and asks questions directly.
-
----
-
-### API Flow:
-
-```text id="flow1"
-POST /chat
+### STEP 1: Create a Chat
+```text
+POST /chat/create
+Header: Authorization: Bearer <token>
 ```
+**Response:** `{"success": true, "chatId": "65f1..."}` (Save this `chatId`)
 
----
-
-### Request:
-
-```json id="req1"
+### STEP 2: Send Message
+```text
+POST /chat/{chatId}
+```
+**Request Body:**
+```json
 {
-  "sessionId": "user123",
-  "message": "What is Sigiriya?"
+  "message": "Tell me about Sigiriya"
+}
+```
+**Response:**
+```json
+{
+  "response": "Sigiriya is an ancient rock fortress...",
+  "history": [...],
+  "imageContext": null
 }
 ```
 
 ---
 
-### Response:
-
-```json id="res1"
-{
-  "success": true,
-  "sessionId": "user123",
-  "response": "Sigiriya is an ancient rock fortress in Sri Lanka...",
-  "imageContext": null,
-  "history": [...]
-}
-```
-
----
-
-###  Use Case:
-
-* Normal chatbot usage
-* No image involved
-
----
-
-# Scenario 2: Image Search Only (No follow-up)
-
-### User behavior:
-
-User uploads image → gets answer → leaves
-
----
+## Scenario 2: Image Search Only
+**Behavior:** User uploads an image to identify a landmark and gets a quick summary.
 
 ### API Flow:
-
-```text id="flow2"
+```text
 POST /image-search
+Header: Authorization: Bearer <token>
 ```
 
----
-
-### Request (form-data):
-
-| Key   | Type | Value        |
-| ----- | ---- | ------------ |
-| image | file | upload image |
-
----
+### Request (multipart/form-data):
+| Key   | Type | Value         |
+| ----- | ---- | ------------- |
+| image | file | [Binary File] |
 
 ### Response:
-
-```json id="res2"
+```json
 {
   "success": true,
   "topic": "Sigiriya Rock Fortress",
-  "identifiedSubject": "Sigiriya Rock Fortress in Sri Lanka",
-  "data": {
-    "context-about": "Sigiriya",
-    "response": "Sigiriya is a UNESCO World Heritage site..."
-  }
+  "identifiedSubject": "Sigiriya Rock Fortress, Sri Lanka",
+  "data": { "response": "Summary text..." }
 }
 ```
 
 ---
 
-###  Use Case:
+## Scenario 3: Image → Ask More (Multimodal Chat)
+**Behavior:** User identifies an image, then enters a chat to ask deeper questions about that specific subject.
 
-* Quick image explanation
-* No chat continuation needed
+### STEP 1: Upload Image
+Call `POST /image-search` as shown in Scenario 2. 
+**Capture:** `identifiedSubject` from the response.
 
----
-
-# Scenario 3: Image → Ask More → Chat
-
-### User behavior:
-
-User uploads image → wants deeper questions
-
----
-
-## STEP 1: Upload image
-
-```text id="flow3a"
-POST /image-search
+### STEP 2: Initialize Chat Context
+Create a chat via `/chat/create`, then link the image subject to it.
+```text
+POST /chat/{chatId}/image-context
 ```
-
-### Response contains:
-
-```json id="r3a"
+**Request:**
+```json
 {
-  "identifiedSubject": "Sigiriya Rock Fortress in Sri Lanka",
-  "response": "..."
+  "imageContext": "Sigiriya Rock Fortress, Sri Lanka"
 }
 ```
 
----
-
-## STEP 2: Click “Ask More” button
-
-Frontend stores:
-
-```js id="ctx1"
-identifiedSubject
+### STEP 3: Contextual Conversation
+The user can now ask "How do I get there?" without repeating "Sigiriya".
+```text
+POST /chat/{chatId}
 ```
+**Request:** `{"message": "How do I get there?"}`
+**Response:** `{"response": "To get to Sigiriya, you can take a bus from Dambulla..."}`
 
 ---
 
-## STEP 3: Set image context
+# 🛠 SYSTEM BEHAVIOR SUMMARY
 
-```text id="flow3b"
-POST /chat/set-image-context
-```
-
----
-
-### Request:
-
-```json id="req3b"
-{
-  "sessionId": "user123",
-  "imageContext": "Sigiriya Rock Fortress in Sri Lanka"
-}
-```
+| Mode | API Sequence | Memory Type |
+| :--- | :--- | :--- |
+| **Direct Chat** | `/chat/create` → `/chat/{id}` | History + RAG |
+| **Image Only** | `/image-search` | No Persistence |
+| **Image + Chat**| `/image-search` → `/chat/{id}/image-context` → `/chat/{id}` | Image Context + History |
 
 ---
 
-###  Response:
+# ⚠️ IMPORTANT RULES FOR FRONTEND
 
-```json id="res3b"
-{
-  "success": true,
-  "message": "Image context stored",
-  "imageContext": "Sigiriya Rock Fortress in Sri Lanka"
-}
-```
+### 1. JWT Persistence
+The token obtained from `/auth/login` must be included in the `Authorization` header for all functional requests.
 
----
+### 2. chatId vs sessionId
+This API uses `chatId` (MongoDB ObjectId). Ensure the ID is passed correctly in the URL path for history and messaging.
 
-## STEP 4: Open Chat & Ask Questions
-
-Now user can ask:
-
- “Where is it located?”
- “Who built it?”
- “Why is it famous?”
+### 3. Image Context is Sticky
+Once `image-context` is set for a specific `chatId`, the AI will assume all future messages in that chat relate to that image until the chat is deleted or changed.
 
 ---
 
-###  API:
+# FRONTEND DESIGN SUGGESTIONS
 
-```text id="flow3c"
-POST /chat
-```
+### 📸 Image UI
+* **Button:** "Identify Landmark"
+* **Action:** On success, display "Ask More about [Subject]" which redirects to the Chat Page.
 
----
-
-###  Request:
-
-```json id="req3c"
-{
-  "sessionId": "user123",
-  "message": "Where is it located?"
-}
-```
+### 💬 Chat UI
+* **Sidebar:** Fetch all user chats using `GET /chat`.
+* **Header:** If `imageContext` exists in the chat object, display a small badge: *"Chatting about: Sigiriya"*.
+* **Auto-Scroll:** Use the `history` array returned in each POST to sync the UI state.
 
 ---
 
-###  Response:
-
-```json id="res3c"
-{
-  "success": true,
-  "response": "Sigiriya is located in the central Matale District of Sri Lanka...",
-  "imageContext": "Sigiriya Rock Fortress in Sri Lanka",
-  "history": [...]
-}
-```
-
----
-
-#  SYSTEM BEHAVIOR SUMMARY
-
-| Mode         | API Used                                              | Behavior                |
-| ------------ | ----------------------------------------------------- | ----------------------- |
-| Direct Chat  | `/chat`                                               | RAG + memory            |
-| Image Only   | `/image-search`                                       | single response         |
-| Image + Chat | `/image-search` → `/chat/set-image-context` → `/chat` | contextual conversation |
-
----
-
-#  IMPORTANT RULES FOR FRONTEND
-
-### 1️. sessionId is required everywhere
-
-```text id="rule1"
-Must be unique per user session
-```
-
----
-
-### 2️. Image context must be set before chat (if using Ask More)
-
-```text id="rule2"
-Always call /chat/set-image-context first
-```
-
----
-
-### 3️. Chat history is automatic
-
-Frontend does NOT need to manage memory manually
-
----
-
-# FRONTEND DESIGN SUGGESTION
-
-### Image Page
-
-* Upload image
-* Show response
-* Show button: “Ask More about this”
-
----
-
-### Chat Page
-
-* Load previous sessionId
-* Continue conversation
-* Image context automatically applied
-
----
-
-# END RESULT UX FLOW
-
-```text id="ux1"
-Image → AI identifies → User reads result
-     → (Ask More)
-     → Chat opens with image memory
-     → Natural conversation continues
-```
-
----
-
-# WHAT THIS BACKEND SUPPORTS
-
-Multimodal AI (text + image)
-Session-based memory
-RAG knowledge retrieval
-Conversational context switching
-Production-ready API structure
-
----
+# BACKEND CAPABILITIES
+* **JWT Auth:** Secure user registration and login.
+* **Persistent Storage:** MongoDB keeps chat history and context safe across sessions.
+* **Multimodal RAG:** Combines image identification with a vector knowledge base.
