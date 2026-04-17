@@ -562,3 +562,26 @@ response:
     "success": true,
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWUxYTUzZmNmM2ZhZGI3NjVkNmQ2ZGMiLCJpYXQiOjE3NzYzOTU2MzksImV4cCI6MTc3NzAwMDQzOX0.r5W6dWo-3toKLyZd941fyDliRlxP-BAu7bJgTqM2Nk4"
 }
+
+
+
+
+
+git commit -m "refactor: secure chat APIs by replacing sessionId with JWT-based user identification
+
+- Protected /chat routes using authMiddleware (JWT authentication)
+- Removed dependency on client-provided sessionId
+- Switched to server-side user identification using req.userId from token
+- Updated in-memory chat session structure to use userId as key
+- Improved security by preventing session spoofing
+
+API Changes:
+- Removed sessionId from request body in all chat-related endpoints
+- Updated endpoints:
+    POST /chat → now requires { message }
+    GET /chat/history → no params required
+    POST /chat/set-image-context → now requires { imageContext }
+- All chat APIs now require Authorization header:
+    Authorization: Bearer <token>
+
+This change ensures secure, user-isolated chat sessions and prepares the system for database-backed persistence."

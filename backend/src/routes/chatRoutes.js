@@ -1,41 +1,37 @@
 import express from "express";
 import { queryVectorDb } from "../rag/queringVectors.js";
 import { chat } from "../rag/chat.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// in-memory session store
+// temporary in-memory store (next step → MongoDB)
 const chatSessions = {};
-
-/*
-Session structure:
-chatSessions[sessionId] = {
-  history: [],
-  imageContext: null
-}
-*/
 
 export default function createChatRoutes(vectorDb) {
 
-  
-  // SET / UPDATE IMAGE CONTEXT
-    router.post("/chat/set-image-context", (req, res) => {
-    const { sessionId, imageContext } = req.body;
+  // protect routes
+  router.use(authMiddleware);
 
-    if (!sessionId || !imageContext) {
+  // ---------------- SET IMAGE CONTEXT ----------------
+  router.post("/chat/set-image-context", (req, res) => {
+    const userId = req.userId;
+    const { imageContext } = req.body;
+
+    if (!imageContext) {
       return res.status(400).json({
-        error: "sessionId and imageContext required"
+        error: "imageContext required"
       });
     }
 
-    if (!chatSessions[sessionId]) {
-      chatSessions[sessionId] = {
+    if (!chatSessions[userId]) {
+      chatSessions[userId] = {
         history: [],
         imageContext: null
       };
     }
 
-    chatSessions[sessionId].imageContext = imageContext;
+    chatSessions[userId].imageContext = imageContext;
 
     res.json({
       success: true,
@@ -44,40 +40,38 @@ export default function createChatRoutes(vectorDb) {
     });
   });
 
-  
-  // CHAT API
-    router.post("/chat", async (req, res) => {
+  // ---------------- CHAT ----------------
+  router.post("/chat", async (req, res) => {
     try {
-      const { sessionId, message } = req.body;
+      const userId = req.userId;
+      const { message } = req.body;
 
-      if (!sessionId || !message) {
+      if (!message) {
         return res.status(400).json({
-          error: "sessionId and message are required"
+          error: "message is required"
         });
       }
 
       // init session
-      if (!chatSessions[sessionId]) {
-        chatSessions[sessionId] = {
+      if (!chatSessions[userId]) {
+        chatSessions[userId] = {
           history: [],
           imageContext: null
         };
       }
 
-      const session = chatSessions[sessionId];
+      const session = chatSessions[userId];
 
       // save user message
       session.history.push({ role: "user", text: message });
 
-      // build query (RAG + image context)
+      // build query
       const query = session.imageContext
         ? `${message} ${session.imageContext}`
         : message;
 
-      // retrieve context
       const contextChunks = await queryVectorDb(query, vectorDb);
 
-      // generate response
       const response = await chat(
         message,
         contextChunks,
@@ -85,12 +79,11 @@ export default function createChatRoutes(vectorDb) {
         session.imageContext
       );
 
-      // save assistant response
+      // save response
       session.history.push({ role: "assistant", text: response });
 
       res.json({
         success: true,
-        sessionId,
         response,
         imageContext: session.imageContext,
         history: session.history
@@ -102,12 +95,11 @@ export default function createChatRoutes(vectorDb) {
     }
   });
 
-  // GET CHAT HISTORY
-  
-  router.get("/chat/history/:sessionId", (req, res) => {
-    const { sessionId } = req.params;
+  // ---------------- HISTORY ----------------
+  router.get("/chat/history", (req, res) => {
+    const userId = req.userId;
 
-    const session = chatSessions[sessionId];
+    const session = chatSessions[userId];
 
     if (!session) {
       return res.json({
