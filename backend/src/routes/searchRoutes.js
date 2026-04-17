@@ -1,3 +1,4 @@
+//THIS JUST FOR TESTING NEED TO REMOVE LATER
 import express from "express";
 import { queryVectorDb } from "../rag/queringVectors.js";
 import { generateResponse } from "../rag/responseGenerator.js";

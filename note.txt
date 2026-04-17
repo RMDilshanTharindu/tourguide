@@ -585,3 +585,20 @@ API Changes:
     Authorization: Bearer <token>
 
 This change ensures secure, user-isolated chat sessions and prepares the system for database-backed persistence."
+
+
+
+
+
+git commit -m "refactor: centralize authentication by applying authMiddleware to protected API routes
+
+- Replaced per-route authentication with router-level protection using router.use(authMiddleware)
+- Secured /chat and /image-search endpoints under unified authentication layer
+- Ensured only authenticated users can access AI features (chat, image search, history)
+- Reduced repetitive middleware usage and improved route structure consistency
+- Improved security enforcement by default for all AI-related endpoints
+
+Note:
+Public routes such as authentication endpoints remain unaffected and accessible without tokens.
+
+This refactor improves maintainability and enforces consistent access control across the backend."
