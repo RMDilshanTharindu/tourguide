@@ -8,10 +8,17 @@ import createChatRoutes from "./src/routes/chatRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 
+import { connectDB } from "./src/config/db.js";
+
+import dotenv from "dotenv";
+dotenv.config();
+
 const swaggerDoc = YAML.load("./swagger.yaml");
 
 const app = express();
 app.use(express.json());
+
+await connectDB();
 
 let vectorDb = [];
 

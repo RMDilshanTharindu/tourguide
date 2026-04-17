@@ -497,3 +497,18 @@ git commit -m "docs: add complete frontend integration guide and Swagger API doc
   - Improves developer experience and API discoverability
 
 This completes full developer-ready documentation for a multimodal RAG backend system with interactive API docs."
+
+
+
+
+
+git commit -m "feat: setup MongoDB connection using Mongoose with environment configuration
+
+- Installed and configured mongoose for database integration
+- Created centralized database connection module (src/config/db.js)
+- Implemented async connectDB function with proper error handling
+- Integrated dotenv for environment variable management
+- Added MONGO_URI configuration via .env file
+- Connected MongoDB during server startup
+
+This establishes the foundation for persistent data storage, enabling future implementation of user authentication and chat history storage."
