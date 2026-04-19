@@ -8,7 +8,7 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-export default function createImageRoutes(vectorDb) {
+export default function createImageRoutes() {
 
   //PROTECTED ROUTE
   router.post("/image-search",authMiddleware,upload.single("image"),async (req, res) => {
@@ -40,7 +40,7 @@ export default function createImageRoutes(vectorDb) {
           .join(" ");
 
         // 2. retrieve chunks
-        const results = await queryVectorDb(identifiedSubject, vectorDb);
+        const results = await queryVectorDb(identifiedSubject);
 
         console.log("Generating Final response...");
 

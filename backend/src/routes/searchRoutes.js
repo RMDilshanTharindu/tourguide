@@ -6,7 +6,7 @@ import console from "console";
 
 const router = express.Router();
 
-export default function (vectorDb) {
+export default function () {
 
   router.post("/search/text", async (req, res) => {
     try {
@@ -19,7 +19,10 @@ export default function (vectorDb) {
       console.log("Searching:", query);
 
       const results = await queryVectorDb(query);
-      console.log(results[0])
+      console.log("Fettched Results: (First 3) ")
+      console.log("DOC 1 :\n" ,results[0]);
+      console.log("DOC 2 :\n" ,results[1]);
+      console.log("DOC 3 :\n" ,results[2]);
       console.log("Generating Final response using returned chunks.....")
       const finalResponse = await generateResponse(query, results);
       console.log("Answer generated...........")

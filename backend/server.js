@@ -33,8 +33,8 @@ async function init() {
 
   //attach routes AFTER DB ready
   app.use("/api", createSearchRoutes());
-  app.use("/api", createImageRoutes(vectorDb));
-  app.use("/api", createChatRoutes(vectorDb));
+  app.use("/api", createImageRoutes());
+  app.use("/api", createChatRoutes());
 
   //api documenaion
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
@@ -43,7 +43,7 @@ async function init() {
 
 await init();
 
-const PORT = 3030;
+const PORT = 3000;
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

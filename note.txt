@@ -756,3 +756,27 @@ const PORT = 3050;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+
+
+
+
+git commit -m "refactor(rag): migrate entire vector storage and retrieval system to ChromaDB
+
+- Replaced in-memory vectorDb across all modules with ChromaDB persistent vector database
+- Updated ingestion pipeline to store embeddings directly in ChromaDB collections
+- Refactored queryVectorDb to perform similarity search using ChromaDB instead of local arrays
+- Integrated ChromaDB into all RAG flows:
+  - Text search
+  - Image-based search
+  - Chat context retrieval
+- Ensured embeddings persist across server restarts, improving reliability and scalability
+- Added metadata support (e.g., filename, context) for structured retrieval
+- Improved separation of concerns between embedding generation and vector storage layer
+
+Impact:
+- Eliminates memory limitations of in-memory vector storage
+- Enables scalable and production-ready semantic search
+- Provides foundation for future enhancements (filtering, hybrid search, multi-user indexing)
+
+This completes the transition from prototype RAG implementation to a persistent vector-based architecture."

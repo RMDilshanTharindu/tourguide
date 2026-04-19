@@ -105,7 +105,7 @@ export default function createChatRoutes(vectorDb) {
         ? `${message} ${chatDoc.imageContext}`
         : message;
 
-      const contextChunks = await queryVectorDb(query, vectorDb);
+      const contextChunks = await queryVectorDb(query);
 
       const response = await chat(
         message,

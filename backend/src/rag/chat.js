@@ -13,8 +13,8 @@ export async function chat(
   try {
 
     const context = contextChunks
-      .map(c => c.text)
-      .join("\n\n");
+      // .map(c => c.text)
+      // .join("\n\n");
 
     const formattedHistory = chatHistory
       .map(m => `${m.role}: ${m.text}`)
