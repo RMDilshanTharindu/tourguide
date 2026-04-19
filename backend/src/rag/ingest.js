@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { GoogleGenAI } from "@google/genai";
+import { getCollection } from "../config/chroma.js";
+import { getEmbedding } from "./embeddings.js";
 
 //Gemini init
 const ai = new GoogleGenAI({
@@ -10,14 +12,14 @@ const ai = new GoogleGenAI({
 const folderPath = "./uploads";
 
 //embedding function
-async function getEmbedding(text) {
-  const response = await ai.models.embedContent({
-    model: "gemini-embedding-2-preview",
-    contents: [{ parts: [{ text }] }]
-  });
+// async function getEmbedding(text) {
+//   const response = await ai.models.embedContent({
+//     model: "gemini-embedding-2-preview",
+//     contents: [{ parts: [{ text }] }]
+//   });
 
-  return response.embeddings[0].values;
-}
+//   return response.embeddings[0].values;
+// }
 
 //chunking
 function chunkText(content, chunkSize = 500, overlap = 50) {
@@ -35,9 +37,15 @@ function chunkText(content, chunkSize = 500, overlap = 50) {
 
 //ingestion pipeline
 export async function ingestion() {
-  const vectorDb = []; // local DB (clean & safe)
+  //const vectorDb = []; // local DB (clean & safe)
+  const collection = await getCollection();
+
 
   const files = fs.readdirSync(folderPath);
+
+  const ids = [];
+  const embeddings = [];
+  const documents = []; //allChunks
 
   for (const file of files) {
     const filePath = path.join(folderPath, file);
@@ -48,24 +56,59 @@ export async function ingestion() {
     const content = fs.readFileSync(filePath, "utf-8");
 
     const chunks = chunkText(content);
+    console.log("CHUNKS CRETED :" , chunks.length)
 
-    const items = await Promise.all(
-      chunks.map(async (text, index) => {
-        const embedding = await getEmbedding(text);
+    let index = 0;
 
-        return {
-          id: `${file}-${index}`,
-          text,
-          embedding,
-          metadata: { filename: file }
-        };
-      })
-    );
+    for (const chunk of chunks){
+      
+      if (!chunk || chunk.trim().length === 0) continue;
 
-    vectorDb.push(...items);
+      const embedding = await getEmbedding(chunk);
 
-    console.log(`Ingested: ${file} | chunks: ${chunks.length}`);
+      if (!embedding) {
+        console.log("Skipping null embedding");
+        continue;
+      }
+      ids.push(`${file}-${index}`);
+      documents.push(chunk);
+      embeddings.push(embedding);
+
+      index++;
+      
+    }
+  
+    // const items = await Promise.all(
+    //   chunks.map(async (text, index) => {
+    //     const embedding = await getEmbedding(text);
+
+    //     return {
+    //       id: `${file}-${index}`,
+    //       text,
+    //       embedding,
+    //       metadata: { filename: file }
+    //     };
+    //   })
+    // );
+    // for (const chunk of chunks){
+    //    const embedding = await getEmbedding(chunk);
+    //    console.log("SIZE:", embedding?.length);
+    //    embeddings.push(embedding);
+    // }
+    //vectorDb.push(...items);
+
+    //console.log(`Ingested: ${file} | chunks: ${chunks.length}`);
   }
+  console.log("DOCUMENTS:", documents.length);
+  console.log("IDS:", ids.length);
+  console.log("EMBEDDINGS:", embeddings.length);
 
-  return vectorDb;
+  await collection.add({
+    ids,
+    documents,
+    embeddings
+  });
+
+  console.log("Data ingested into Chroma");
+
 }

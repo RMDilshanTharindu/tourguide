@@ -25,14 +25,14 @@ let vectorDb = [];
 
 async function init() {
   console.log("Starting ingestion...");
-  vectorDb = await ingestion();
-  console.log("Total vectors:", vectorDb.length);
+  await ingestion();
+  //console.log("Total vectors:", vectorDb.length);
   
   //authentication
   app.use("/api/auth", authRoutes);
 
   //attach routes AFTER DB ready
-  app.use("/api", createSearchRoutes(vectorDb));
+  app.use("/api", createSearchRoutes());
   app.use("/api", createImageRoutes(vectorDb));
   app.use("/api", createChatRoutes(vectorDb));
 
@@ -43,7 +43,7 @@ async function init() {
 
 await init();
 
-const PORT = 3000;
+const PORT = 3030;
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

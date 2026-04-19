@@ -682,3 +682,77 @@ Documentation updates:
 - Updated login request schema to use 'identifier' instead of only username
 
 This improves authentication flexibility and aligns the system with standard production practices."
+
+
+
+
+
+git commit -m "refactor: migrate vector storage from in-memory DB to ChromaDB for persistent semantic search
+
+- Replaced in-memory vectorDb array with ChromaDB persistent vector storage
+- Updated /search/text test route to use ChromaDB for semantic retrieval
+- Improved scalability by enabling disk-based vector persistence instead of runtime memory storage
+- Enhanced reliability of RAG pipeline by ensuring embeddings persist across server restarts
+- Prepared architecture for production-level retrieval system with external vector database integration
+
+Note:
+This change currently applies only to the test search route (searchRoutes.js) for validation before full system migration."
+
+
+start charomaDB on local server:
+
+docker run -p 8000:8000 chromadb/chroma
+
+
+
+use this code to, debug chromaDB. (use it on another code file, another terminal)
+
+import express from "express";
+import dotenv from "dotenv";
+import { getCollection } from "./d2-chroma.js";
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+
+/**
+ *  DEBUG ROUTE - View all data in Chroma
+ */
+app.get("/debug/all", async (req, res) => {
+  try {
+    const collection = await getCollection();
+
+    const data = await collection.get({
+      include: ["documents", "metadatas", "embeddings"]
+    });
+
+    res.json({
+      success: true,
+      count: data.ids.length,
+      data
+    });
+
+  } catch (err) {
+    console.error("Debug fetch error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch data"
+    });
+  }
+});
+
+/**
+ *  Basic route (optional)
+ */
+app.get("/", (req, res) => {
+  res.send("Chroma Debug Server Running");
+});
+
+/**
+ *  Start server
+ */
+const PORT = 3050;
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

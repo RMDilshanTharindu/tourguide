@@ -21,6 +21,7 @@
   "dependencies": {
     "@google/genai": "^1.50.1",
     "bcrypt": "^6.0.0",
+    "chromadb": "^3.4.3",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",

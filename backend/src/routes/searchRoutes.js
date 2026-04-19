@@ -18,7 +18,7 @@ export default function (vectorDb) {
 
       console.log("Searching:", query);
 
-      const results = await queryVectorDb(query, vectorDb);
+      const results = await queryVectorDb(query);
       console.log(results[0])
       console.log("Generating Final response using returned chunks.....")
       const finalResponse = await generateResponse(query, results);

@@ -23,7 +23,7 @@ function extractTopic(query, chunks) {
 // MAIN FUNCTION
 export async function generateResponse(query, chunks) {
   try {
-    const context = buildContext(chunks);
+    const context = chunks;
     const topic = extractTopic(query, chunks);
 
     const prompt = `
