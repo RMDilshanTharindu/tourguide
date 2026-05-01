@@ -27,8 +27,86 @@ tags:
   - name: Image
 
 paths:
+  
+  # ---------------- ADMIN AUTH ----------------
+  /admin/auth/register:
+    post:
+      summary: Register a new Admin (Requires Secret Key)
+      tags: [Admin Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, secret]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                secret:
+                  type: string
+                  description: The system-wide ADMIN_SECRET key
+      responses:
+        201:
+          description: Admin created
+        401:
+          description: Invalid secret key
 
-  # ---------------- AUTH ----------------
+  /admin/auth/login:
+    post:
+      summary: Login as Admin to get JWT token
+      tags: [Admin Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
+  # ---------------- ADMIN MANAGEMENT ----------------
+  /admin/upload-and-ingest:
+    post:
+      summary: Upload document and trigger RAG ingestion
+      tags: [Admin Management]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Document to be ingested into the vector database
+      responses:
+        200:
+          description: File uploaded and ingestion complete
+        401:
+          description: Unauthorized (Invalid or missing token)
+
+  # ---------------- AUTH USER ----------------
   /auth/register:
     post:
       summary: Register new user

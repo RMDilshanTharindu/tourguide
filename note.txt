@@ -805,3 +805,14 @@ feat: implement JWT-based admin authentication and secured RAG ingestion
     - Maintained 'multer' integration for document uploads to the ./uploads directory.
 - Refactored server.js route priority to correctly separate public auth routes from protected admin management routes.
 - Updated middleware to correctly map decoded JWT 'id' to the request object.
+
+
+
+docs: update OpenAPI/Swagger specification for admin auth and management
+
+- Added 'Admin Auth' and 'Admin Management' tags to Swagger UI.
+- Documented Admin registration and login endpoints under /api/admin/auth.
+- Added documentation for the protected /api/admin/upload-and-ingest endpoint.
+- Defined multipart/form-data requirements for document uploads.
+- Integrated JWT security requirements for all new administrative paths.
+- Updated API version to 2.1.0 to reflect multimodal admin capabilities.
