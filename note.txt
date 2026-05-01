@@ -780,3 +780,13 @@ Impact:
 - Provides foundation for future enhancements (filtering, hybrid search, multi-user indexing)
 
 This completes the transition from prototype RAG implementation to a persistent vector-based architecture."
+
+
+
+feat: add admin file upload and automated RAG ingestion route
+
+- Implement POST /api/admin/upload-and-ingest endpoint to handle document uploads.
+- Integrate 'multer' middleware for disk storage management in the ./uploads/ directory.
+- Add logic to trigger the RAG ingestion pipeline immediately following a successful file upload.
+- Include basic console logging for tracking upload status and ingestion progress.
+- Note: Currently uses a temporary simplified route structure; future iterations will implement the static adminpass verification and environment-based pathing.

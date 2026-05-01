@@ -5,6 +5,8 @@ import createSearchRoutes from "./src/routes/searchRoutes.js";
 import createImageRoutes from "./src/routes/imageRoutes.js";
 import createChatRoutes from "./src/routes/chatRoutes.js";
 import authRoutes from "./src/routes/authRoutes.js";
+import adminRoutes from "./src/routes/adminRoutes.js";
+import fs from "fs";
 
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
@@ -24,12 +26,20 @@ await connectDB();
 let vectorDb = [];
 
 async function init() {
-  console.log("Starting ingestion...");
-  await ingestion();
+
+  // Ensure 'uploads' directory exists or multer will throw an error
+  if (!fs.existsSync("./uploads")) {
+    fs.mkdirSync("./uploads");
+  }
+  console.log("Ingestion Should start by admin...");
+  //await ingestion();
   //console.log("Total vectors:", vectorDb.length);
   
   //authentication
   app.use("/api/auth", authRoutes);
+
+  //Admin
+  app.use("/api/admin", adminRoutes);
 
   //attach routes AFTER DB ready
   app.use("/api", createSearchRoutes());
