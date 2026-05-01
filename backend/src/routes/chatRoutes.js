@@ -3,6 +3,8 @@ import { queryVectorDb } from "../rag/queringVectors.js";
 import { chat } from "../rag/chat.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import Chat from "../models/Chat.js";
+import { chatRateLimiter } from "../middleware/rateLimiter.js";
+
 
 const router = express.Router();
 
@@ -81,7 +83,7 @@ export default function createChatRoutes(vectorDb) {
   });
 
   // ---------------- SEND MESSAGE ----------------
-  router.post("/chat/:chatId", async (req, res) => {
+  router.post("/chat/:chatId",chatRateLimiter, async (req, res) => {
     try {
       const userId = req.userId;
       const { chatId } = req.params;

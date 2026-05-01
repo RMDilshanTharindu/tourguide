@@ -4,6 +4,7 @@ import { identifyImageSubject } from "../rag/imagehandle.js";
 import { queryVectorDb } from "../rag/queringVectors.js";
 import { generateResponse } from "../rag/responseGenerator.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
+import { imageRateLimiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -11,7 +12,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 export default function createImageRoutes() {
 
   //PROTECTED ROUTE
-  router.post("/image-search",authMiddleware,upload.single("image"),async (req, res) => {
+  router.post("/image-search",authMiddleware, imageRateLimiter, upload.single("image"), async (req, res) => {
 
       try {
         const userId = req.userId; 

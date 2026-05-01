@@ -3,12 +3,13 @@ import express from "express";
 import { queryVectorDb } from "../rag/queringVectors.js";
 import { generateResponse } from "../rag/responseGenerator.js";
 import console from "console";
+import { chatRateLimiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 
 export default function () {
 
-  router.post("/search/text", async (req, res) => {
+  router.post("/search/text",chatRateLimiter, async (req, res) => {
     try {
       const { query } = req.body;
 
