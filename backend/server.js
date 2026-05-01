@@ -4,8 +4,10 @@ import { ingestion } from "./src/rag/ingest.js";
 import createSearchRoutes from "./src/routes/searchRoutes.js";
 import createImageRoutes from "./src/routes/imageRoutes.js";
 import createChatRoutes from "./src/routes/chatRoutes.js";
+import createAdminRoutes from "./src/routes/adminRoutes.js";
+
 import authRoutes from "./src/routes/authRoutes.js";
-import adminRoutes from "./src/routes/adminRoutes.js";
+import adminAuthRoutes from "./src/routes/adminAuthRoutes.js"
 import fs from "fs";
 
 import swaggerUi from "swagger-ui-express";
@@ -38,9 +40,11 @@ async function init() {
   //authentication
   app.use("/api/auth", authRoutes);
 
-  //Admin
-  app.use("/api/admin", adminRoutes);
+  //Admin Authentication
+  app.use("/api/admin/auth", adminAuthRoutes);
 
+  // Ingest by admin
+  app.use("/api/admin" ,createAdminRoutes())
   //attach routes AFTER DB ready
   app.use("/api", createSearchRoutes());
   app.use("/api", createImageRoutes());

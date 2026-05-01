@@ -790,3 +790,18 @@ feat: add admin file upload and automated RAG ingestion route
 - Add logic to trigger the RAG ingestion pipeline immediately following a successful file upload.
 - Include basic console logging for tracking upload status and ingestion progress.
 - Note: Currently uses a temporary simplified route structure; future iterations will implement the static adminpass verification and environment-based pathing.
+
+
+feat: implement JWT-based admin authentication and secured RAG ingestion
+
+
+- Added Admin Mongoose model to store hashed credentials.
+- Implemented 'adminAuthRoutes' for registration and login:
+    - /register: Secured via ADMIN_SECRET environment variable and bcrypt password hashing.
+    - /login: Validates credentials and issues a 24h JWT access token.
+- Created 'authMiddleware' to verify JSON Web Tokens in the Authorization header.
+- Secured the '/upload-and-ingest' route:
+    - Integrated 'authMiddleware' to restrict access to authenticated admins only.
+    - Maintained 'multer' integration for document uploads to the ./uploads directory.
+- Refactored server.js route priority to correctly separate public auth routes from protected admin management routes.
+- Updated middleware to correctly map decoded JWT 'id' to the request object.
