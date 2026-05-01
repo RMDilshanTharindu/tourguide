@@ -780,3 +780,39 @@ Impact:
 - Provides foundation for future enhancements (filtering, hybrid search, multi-user indexing)
 
 This completes the transition from prototype RAG implementation to a persistent vector-based architecture."
+
+
+
+feat: add admin file upload and automated RAG ingestion route
+
+- Implement POST /api/admin/upload-and-ingest endpoint to handle document uploads.
+- Integrate 'multer' middleware for disk storage management in the ./uploads/ directory.
+- Add logic to trigger the RAG ingestion pipeline immediately following a successful file upload.
+- Include basic console logging for tracking upload status and ingestion progress.
+- Note: Currently uses a temporary simplified route structure; future iterations will implement the static adminpass verification and environment-based pathing.
+
+
+feat: implement JWT-based admin authentication and secured RAG ingestion
+
+
+- Added Admin Mongoose model to store hashed credentials.
+- Implemented 'adminAuthRoutes' for registration and login:
+    - /register: Secured via ADMIN_SECRET environment variable and bcrypt password hashing.
+    - /login: Validates credentials and issues a 24h JWT access token.
+- Created 'authMiddleware' to verify JSON Web Tokens in the Authorization header.
+- Secured the '/upload-and-ingest' route:
+    - Integrated 'authMiddleware' to restrict access to authenticated admins only.
+    - Maintained 'multer' integration for document uploads to the ./uploads directory.
+- Refactored server.js route priority to correctly separate public auth routes from protected admin management routes.
+- Updated middleware to correctly map decoded JWT 'id' to the request object.
+
+
+
+docs: update OpenAPI/Swagger specification for admin auth and management
+
+- Added 'Admin Auth' and 'Admin Management' tags to Swagger UI.
+- Documented Admin registration and login endpoints under /api/admin/auth.
+- Added documentation for the protected /api/admin/upload-and-ingest endpoint.
+- Defined multipart/form-data requirements for document uploads.
+- Integrated JWT security requirements for all new administrative paths.
+- Updated API version to 2.1.0 to reflect multimodal admin capabilities.
