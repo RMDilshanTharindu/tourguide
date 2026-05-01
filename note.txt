@@ -816,3 +816,13 @@ docs: update OpenAPI/Swagger specification for admin auth and management
 - Defined multipart/form-data requirements for document uploads.
 - Integrated JWT security requirements for all new administrative paths.
 - Updated API version to 2.1.0 to reflect multimodal admin capabilities.
+
+
+
+feat: implement rate-limiting middleware for API protection
+
+- Integrated 'express-rate-limit' package to manage request traffic.
+- Created a centralized rateLimiter middleware in src/middleware/rateLimiter.js.
+- Configured a 'chatRateLimiter' with a window of 1 minute and a maximum of 10 requests.
+- Successfully verified the middleware on a test route with a 429 "Too Many Requests" response.
+- Enabled 'standardHeaders' and 'legacyHeaders' for better client-side rate-limit tracking.
