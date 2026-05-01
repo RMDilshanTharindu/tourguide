@@ -826,3 +826,10 @@ feat: implement rate-limiting middleware for API protection
 - Configured a 'chatRateLimiter' with a window of 1 minute and a maximum of 10 requests.
 - Successfully verified the middleware on a test route with a 429 "Too Many Requests" response.
 - Enabled 'standardHeaders' and 'legacyHeaders' for better client-side rate-limit tracking.
+
+
+feat: implement comprehensive rate limiting across all functional routes
+
+// 5 Messages Per 30 minutes
+// 3 Images per day
+// 5 documnets to ingest per day

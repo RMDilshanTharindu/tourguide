@@ -4,6 +4,7 @@ import path from "path";
 import { ingestion } from "../rag/ingest.js";
 
 import { verifyAdmin } from "../middleware/authAdminMiddleware.js";
+import { ingestRateLimiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ const upload = multer({ storage });
 export default function(){
     // 2. The Admin Uplode and Ingest Route
 
-    router.post("/upload-and-ingest",verifyAdmin, upload.single("file"), async (req, res) => {
+    router.post("/upload-and-ingest",verifyAdmin, ingestRateLimiter, upload.single("file"), async (req, res) => {
     
     console.log("file recived")
     try {
