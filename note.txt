@@ -833,3 +833,13 @@ feat: implement comprehensive rate limiting across all functional routes
 // 5 Messages Per 30 minutes
 // 3 Images per day
 // 5 documnets to ingest per day
+
+
+
+feat(admin): add route to list uploaded files and update swagger docs
+
+- Added GET /files endpoint to retrieve a list of all files in the /uploads directory.
+- Implemented fs/promises for non-blocking directory reading.
+- Secured the new route with verifyAdmin middleware.
+- Updated swagger.yml to include documentation for the file listing and upload endpoints.
+- Fixed a ReferenceError by properly importing the 'fs' module.
