@@ -82,6 +82,35 @@ paths:
                     type: string
 
   # ---------------- ADMIN MANAGEMENT ----------------
+
+  /admin/files:
+    get:
+      summary: List all uploaded files
+      tags: [Admin Management]
+      security:
+        - bearerAuth: [] # Assuming you use Bearer tokens for verifyAdmin
+      responses:
+        '200':
+          description: A successful response returning an array of filenames.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Files retrieved successfully"
+                  files:
+                    type: array
+                    items:
+                      type: string
+                    example: ["1715638200000-document.pdf", "1715638299999-data.txt"]
+        '401':
+          description: Unauthorized - Admin access required.
+        '500':
+          description: Server error or directory not found.
+
+
   /admin/upload-and-ingest:
     post:
       summary: Upload document and trigger RAG ingestion

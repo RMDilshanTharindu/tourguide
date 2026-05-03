@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import { ingestion } from "../rag/ingest.js";
+import fs from "fs/promises";
 
 import { verifyAdmin } from "../middleware/authAdminMiddleware.js";
 import { ingestRateLimiter } from "../middleware/rateLimiter.js";
@@ -21,6 +22,25 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 export default function(){
+
+    // List Files 
+    router.get("/files", verifyAdmin, async (req, res) => {
+        try {
+            const directoryPath = "./uploads/";
+            // Read the directory
+            const files = await fs.readdir(directoryPath);
+            
+            res.status(200).json({
+                message: "Files retrieved successfully",
+                files: files // Returns an array of filenames
+            });
+        } catch (error) {
+            console.error("Failed to list files:", error);
+            res.status(500).json({ error: "Unable to scan directory or folder does not exist." });
+        }
+    });
+
+
     // 2. The Admin Uplode and Ingest Route
 
     router.post("/upload-and-ingest",verifyAdmin, ingestRateLimiter, upload.single("file"), async (req, res) => {
