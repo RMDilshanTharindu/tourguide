@@ -1,0 +1,845 @@
+git commit -m "feat: implement complete RAG pipeline with document ingestion and vector search
+
+- Added document ingestion system (ingest.js)
+  - Reads files from uploads directory
+  - Splits documents into overlapping chunks
+  - Generates embeddings using Gemini API
+  - Stores vector representations in memory (vectorDb)
+
+- Implemented vector search engine (queringVectors.js)
+  - Added cosine similarity function for embedding comparison
+  - Retrieves top-K most relevant document chunks
+  - Supports query embedding generation using Gemini
+
+- Created pipeline test runner (server.js)
+  - Orchestrates ingestion and querying flow
+  - Tests full RAG pipeline end-to-end
+  - Logs ingestion stats and search results
+
+- Improved architecture
+  - Removed global state dependency issues
+  - Ensured ingestion returns vector database explicitly
+  - Clean separation between ingestion and retrieval logic
+
+This commit establishes a working prototype of a Retrieval-Augmented Generation system using Node.js and Gemini embeddings."
+
+
+
+
+
+
+git commit -m "feat: add multimodal RAG system with image-based query support
+
+- Added image understanding pipeline using Gemini Vision model
+  - Implemented identifyImageSubject() to analyze uploaded images
+  - Converts images into descriptive text labels using AI vision model
+
+- Integrated image-to-text retrieval system
+  - Converts image into base64 format
+  - Extracts semantic subject from image
+  - Uses extracted subject to query vector database
+
+- Updated server pipeline (server.js)
+  - Supports both text-based and image-based queries
+  - Combines traditional RAG with multimodal search capability
+  - Separates text search and image-driven retrieval flow
+
+- Improved system architecture
+  - Introduced cross-modal retrieval (image → text embeddings)
+  - Fixed async handling and function naming issues
+  - Cleaned duplicate variables and improved flow structure
+
+This commit upgrades the project from a basic RAG system to a multimodal retrieval system capable of understanding both text and images."
+
+
+
+
+
+git commit -m "feat: add multimodal RAG chat system with image understanding and conversational AI
+
+- Introduced chat layer (chat.js) for LLM-based response generation
+  - Integrated Gemini generative model for context-aware answers
+  - Added support for chat history for conversational memory
+  - Combined retrieved vector context with user queries
+
+- Enhanced server pipeline (server.js)
+  - Integrated text-based RAG search flow
+  - Added image understanding pipeline using Gemini Vision
+  - Combined image-to-text conversion with vector retrieval
+  - Integrated chat system with RAG context
+
+- Improved system architecture
+  - Unified text RAG, image RAG, and chat into single pipeline
+  - Ensured async flow consistency across all modules
+  - Fixed integration issues between ingestion, retrieval, and generation
+
+This commit transforms the project into a multimodal RAG chatbot capable of understanding text, images, and generating contextual AI responses."
+
+
+
+
+
+git commit -m "chore: update project configuration and entry point
+
+- Changed main entry from rag.js to server.js
+- Added npm scripts for better workflow:
+  - npm start → runs main server
+  - npm run ingest → runs ingestion pipeline
+- Updated project metadata (description, keywords, author)
+- Improved project structure for multimodal RAG system
+
+This commit aligns package configuration with the current architecture, which now includes ingestion, vector search, image understanding, and chat system."
+
+
+
+
+
+git commit -m "feat: add structured response generator for RAG system
+
+- Introduced responseGenerator.js to handle LLM-based answer generation
+- Combined retrieved vector chunks with user query for context-aware responses
+- Implemented strict JSON output format:
+  {
+    "context-about": "<topic>",
+    "response": "<final answer>"
+  }
+
+- Added prompt engineering for Gemini model to ensure structured output
+- Implemented fallback handling for invalid JSON responses
+- Enhanced RAG pipeline by adding final generation layer after retrieval
+
+This commit completes the full RAG architecture:
+ingestion → retrieval → generation → structured response output for frontend integration"
+
+
+
+
+
+git commit -m "feat: convert RAG pipeline into REST API with modular routing
+
+- Integrated Express.js server to expose backend functionality via HTTP APIs
+- Implemented POST /api/search/text endpoint for semantic search + LLM response generation
+- Refactored project structure:
+  - Moved AI logic into src/rag module
+  - Introduced src/routes for API route handling
+- Added searchRoutes module with dependency injection (vectorDb)
+- Initialized vector database at server startup for efficient querying
+- Connected retrieval (vector search) with generation (LLM) to produce structured JSON responses
+
+This marks the transition from a standalone script to a scalable API-based RAG backend, ready for frontend integration."
+
+
+request:
+
+POST    http://localhost:3000/api/search/text
+
+{
+  "query": "What is Sigiriya?"
+}
+
+
+response:
+
+{
+    "success": true,
+    "data": {
+        "context-about": "Sigiriya",
+        "response": "Sigiriya, also known as Lion Rock, is a historical site and UNESCO World Heritage Site in Sri Lanka. Built in the 5th century AD by King Kashyapa, it served as a royal palace and fortress featuring advanced urban planning, water gardens, and frescoes."
+    }
+}
+
+
+
+
+
+
+git commit -m "feat: add image-based search API with multimodal RAG pipeline
+
+- Implemented POST /api/image-search endpoint using Express
+- Added multer for handling image uploads (multipart/form-data)
+- Integrated image understanding using Gemini to identify subject from images
+- Converted uploaded images to base64 for AI processing
+- Connected identified subject to vector search (RAG retrieval)
+- Integrated LLM response generation based on retrieved context
+
+- Added topic extraction (2–3 words) from identified image subject for frontend usage
+- Structured API response to include:
+  - topic (short label)
+  - identifiedSubject (full description)
+  - context-aware generated response
+
+- Created modular imageRoutes under src/routes
+- Maintained clean separation between API layer and RAG logic
+
+This introduces multimodal capabilities (image → text → knowledge retrieval → response),
+significantly enhancing the system towards a real-world AI assistant backend."
+
+
+
+request:
+
+Enter URL
+
+http://localhost:3000/api/image-search
+
+Set request type : POST 
+
+Go to Body
+Select form-data
+Add image file
+Key: image
+Type: File
+Value: Upload any image (e.g., image.jpeg)
+Send request
+
+
+response:
+
+{
+    "success": true,
+    "topic": "Gal Vihara (Polonnaruwa,",
+    "identifiedSubject": "Gal Vihara (Polonnaruwa, Sri Lanka)",
+    "data": {
+        "context-about": "Gal Viharaya",
+        "response": "The Gal Viharaya, or Uttararama, is a 12th-century rock temple in Polonnaruwa, Sri Lanka, created by King Parakramabahu I. It features four Buddha statues carved into granite: a 7-meter standing image with crossed arms, a 14.12-meter reclining image depicting Parinirvana, and a seated image within the Vidyhadhara Guha cave."
+    }
+}
+
+
+
+
+
+
+
+
+
+git commit -m "refactor: improve chat system architecture by separating retrieval and LLM layers
+
+- Refactored chat.js to decouple vector retrieval from LLM generation
+- Moved queryVectorDb responsibility out of chat module (API layer now handles retrieval)
+- Improved prompt engineering with structured formatting for:
+  - Context chunks
+  - Chat history (role-based formatting)
+  - User message separation
+- Enhanced LLM instructions for better grounding and response consistency
+- Cleaned function signature for better modularity and reusability
+
+This improves scalability and aligns chat system with production-grade RAG architecture:
+Retrieval (API layer) → Context preparation → LLM generation"
+
+---
+
+#Chat API Usage Instructions
+
+## 1. Start a Chat Session
+
+### Endpoint
+
+```
+POST /api/chat
+```
+
+### Description
+
+Sends a user message to the AI. The API uses:
+
+* vector database (RAG retrieval)
+* previous chat history (memory)
+* LLM (Gemini) to generate response
+
+### Request Body (JSON)
+
+```json
+{
+  "sessionId": "user123",
+  "message": "Tell me about Sigiriya"
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "sessionId": "user123",
+  "response": "Sigiriya is an ancient rock fortress in Sri Lanka...",
+  "history": [
+    { "role": "user", "text": "Tell me about Sigiriya" },
+    { "role": "assistant", "text": "Sigiriya is..." }
+  ]
+}
+```
+
+---
+
+## 2. Get Chat History
+
+### Endpoint
+
+```
+GET /api/chat/history/:sessionId
+```
+
+### Description
+
+Returns full conversation history for a given session.
+
+### Example Request
+
+```
+GET /api/chat/history/user123
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "sessionId": "user123",
+  "history": [
+    { "role": "user", "text": "Tell me about Sigiriya" },
+    { "role": "assistant", "text": "Sigiriya is..." }
+  ]
+}
+```
+
+---
+
+## 3. How Chat Flow Works (Important)
+
+1. Frontend sends `message + sessionId`
+2. Backend:
+
+   * retrieves relevant knowledge (RAG)
+   * uses chat history for context
+   * generates AI response
+3. Response is returned + stored in session memory
+
+---
+
+## Important Notes
+
+* `sessionId` is required to maintain conversation memory
+* Each user should have a unique sessionId (e.g. user ID or UUID)
+* Chat history is stored in-memory (resets if server restarts)
+* Use `/chat/history` to restore UI state on refresh
+
+---
+
+## Frontend Tip
+
+* Call `/api/chat` on every user message
+* Append response to chat UI immediately
+* Optionally load history on page load using `/chat/history`
+
+---
+
+
+
+
+
+
+git commit -m "feat: implement multimodal chat system with image-aware conversational memory
+
+- Added session-based chat memory system with in-memory storage
+- Introduced image context persistence for image-first user flows
+- Created /api/chat/set-image-context endpoint to store visual context after image upload
+- Enhanced /api/chat endpoint to support:
+  - Direct RAG-based chat
+  - Image-context-aware conversation flow
+  - Unified session handling for both use cases
+
+- Improved chat architecture:
+  - Maintains per-session history (user + assistant messages)
+  - Injects image context into retrieval and LLM prompt when available
+  - Automatically switches between text-only and image-based reasoning
+
+- Added /api/chat/history endpoint for retrieving full conversation state
+- Updated LLM prompt engineering to prioritize image context when present
+
+This enables a seamless user experience where:
+Image upload → contextual understanding → continuous conversation (Ask More feature)
+
+System now supports fully interactive multimodal RAG conversations."
+
+
+
+
+1. Start Chat Session (Text Only)
+
+Endpoint
+POST /api/chat
+
+
+Description
+
+Send a message to the AI. The system uses:
+
+RAG (knowledge base retrieval)
+Chat history (session memory)
+Optional image context (if available)
+
+Request Body
+{
+  "sessionId": "user123",
+  "message": "What is Sigiriya?"
+}
+
+
+
+
+2. Set Image Context (After Image Upload)
+
+Endpoint
+POST /api/chat/set-image-context
+Description
+
+Used after /api/image-search. This stores the identified image subject for contextual chat.
+
+Request Body
+{
+  "sessionId": "user123",
+  "imageContext": "Sigiriya Rock Fortress in Sri Lanka"
+}
+
+
+
+
+3. Ask Follow-up Questions (Ask More Feature)
+
+After setting image context, users can ask natural questions like:
+
+“Where is it located?”
+“Who built it?”
+“Why is it famous?”
+
+Request Example
+POST /api/chat
+{
+  "sessionId": "user123",
+  "message": "Where is it located?"
+}
+
+
+The system automatically uses the stored image context.
+
+
+
+4. Get Chat History
+Endpoint
+GET /api/chat/history/:sessionId
+Description
+
+Returns full conversation history and image context.
+
+Example
+GET /api/chat/history/user123
+
+Response
+{
+  "success": true,
+  "history": [
+    { "role": "user", "text": "What is Sigiriya?" },
+    { "role": "assistant", "text": "Sigiriya is..." }
+  ],
+  "imageContext": "Sigiriya Rock Fortress in Sri Lanka"
+}
+
+
+
+5. System Flow Overview
+
+Text-only flow:
+User → /chat → RAG retrieval → AI response → history stored
+
+Image-based flow:
+Image upload → /image-search → identifiedSubject
+             → /set-image-context
+             → /chat (Ask more)
+             → AI uses image context + RAG
+
+
+Important Notes
+
+sessionId is required for all chat-related requests
+Image context is optional but enhances responses
+Chat history is stored in-memory (resets on server restart)
+Always call /set-image-context before asking follow-up image questions
+
+
+Frontend Tip
+Store sessionId in localStorage
+After image upload → call /set-image-context
+Enable “Ask More” button → redirects to chat page with same sessionId
+Load history using /chat/history/:sessionId on page load
+
+
+
+
+git commit -m "docs: add complete frontend integration guide and Swagger API documentation
+
+- Added comprehensive frontend developer guide covering all API usage scenarios
+- Documented 3 core user flows:
+  - Direct chat flow (/chat)
+  - Image-only search flow (/image-search)
+  - Image-to-chat conversational flow (/image-search → /chat/set-image-context → /chat)
+
+- Included detailed request/response examples for all endpoints
+- Explained session-based memory handling using sessionId
+- Defined image context workflow for multimodal conversational AI system
+- Provided step-by-step integration instructions for frontend developers
+- Added system behavior overview and UX flow explanation
+
+- Added Swagger (OpenAPI 3.0) documentation support:
+  - Structured API specification for all endpoints
+  - Includes /chat, /chat/history, /chat/set-image-context, and /image-search
+  - Enables interactive API testing and documentation UI
+  - Improves developer experience and API discoverability
+
+This completes full developer-ready documentation for a multimodal RAG backend system with interactive API docs."
+
+
+
+
+
+git commit -m "feat: setup MongoDB connection using Mongoose with environment configuration
+
+- Installed and configured mongoose for database integration
+- Created centralized database connection module (src/config/db.js)
+- Implemented async connectDB function with proper error handling
+- Integrated dotenv for environment variable management
+- Added MONGO_URI configuration via .env file
+- Connected MongoDB during server startup
+
+This establishes the foundation for persistent data storage, enabling future implementation of user authentication and chat history storage."
+
+
+
+
+
+
+git commit -m "feat: implement user authentication with JWT and secure password hashing
+
+- Added user authentication system with register and login endpoints
+- Created User model for storing user credentials in MongoDB
+- Implemented password hashing using bcrypt for secure storage
+- Added JWT-based authentication for session management
+- Created auth middleware to protect API routes using token verification
+- Integrated environment-based JWT secret configuration
+- Structured authentication routes under /api/auth
+
+This enables secure user management and lays the foundation for personalized chat history and protected API access."
+
+
+request:
+POST  http://localhost:3000/api/auth/register
+
+ {
+  "username": "dilshan",
+  "email": "dilshan@gmail.com",
+  "password": "123456"
+}
+
+response:
+{
+    "success": true,
+    "message": "User registered successfully"
+}
+
+
+
+request:
+POST  http://localhost:3000/api/auth/login
+
+{
+  "email": "dilshan@gmail.com",
+  "password": "123456"
+}
+
+response:
+
+{
+    "success": true,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWUxYTUzZmNmM2ZhZGI3NjVkNmQ2ZGMiLCJpYXQiOjE3NzYzOTU2MzksImV4cCI6MTc3NzAwMDQzOX0.r5W6dWo-3toKLyZd941fyDliRlxP-BAu7bJgTqM2Nk4"
+}
+
+
+
+
+
+git commit -m "refactor: secure chat APIs by replacing sessionId with JWT-based user identification
+
+- Protected /chat routes using authMiddleware (JWT authentication)
+- Removed dependency on client-provided sessionId
+- Switched to server-side user identification using req.userId from token
+- Updated in-memory chat session structure to use userId as key
+- Improved security by preventing session spoofing
+
+API Changes:
+- Removed sessionId from request body in all chat-related endpoints
+- Updated endpoints:
+    POST /chat → now requires { message }
+    GET /chat/history → no params required
+    POST /chat/set-image-context → now requires { imageContext }
+- All chat APIs now require Authorization header:
+    Authorization: Bearer <token>
+
+This change ensures secure, user-isolated chat sessions and prepares the system for database-backed persistence."
+
+
+
+
+
+git commit -m "refactor: centralize authentication by applying authMiddleware to protected API routes
+
+- Replaced per-route authentication with router-level protection using router.use(authMiddleware)
+- Secured /chat and /image-search endpoints under unified authentication layer
+- Ensured only authenticated users can access AI features (chat, image search, history)
+- Reduced repetitive middleware usage and improved route structure consistency
+- Improved security enforcement by default for all AI-related endpoints
+
+Note:
+Public routes such as authentication endpoints remain unaffected and accessible without tokens.
+
+This refactor improves maintainability and enforces consistent access control across the backend."
+
+
+
+
+
+git commit -m "feat: implement multi-chat system with MongoDB persistence and new chat APIs
+
+- Replaced in-memory chat sessions with MongoDB Chat model
+- Enabled multiple chats per user (one-to-many relationship)
+- Added chatId-based conversation handling
+- Stored chat messages and image context persistently
+- Secured all chat routes using JWT authentication (userId-based access)
+
+New API Endpoints:
+
+1. Create Chat
+POST /api/chat/create
+
+Response:
+{
+  "success": true,
+  "chatId": "<chatId>"
+}
+
+2. Send Message
+
+POST /api/chat/:chatId
+
+Headers:
+  Authorization: Bearer <token>
+Body:
+{
+  \"message\": \"Your question here\"
+}
+
+
+3. Get Chat History
+GET /api/chat/:chatId
+Headers:
+  Authorization: Bearer <token>
+
+
+4. List User Chats
+GET /api/chat
+Headers:
+  Authorization: Bearer <token>
+
+
+5. Set Image Context
+POST /api/chat/:chatId/image-context
+Headers:
+  Authorization: Bearer <token>
+Body:
+{
+  "imageContext": "Sigiriya Rock Fortress"
+}
+
+API Behavior Changes:
+- Removed sessionId-based chat handling
+- Introduced chatId for managing multiple conversations
+- All chat endpoints now require authentication via JWT
+- Chat history and context are now persisted in MongoDB
+
+This upgrade transforms the system into a scalable, multi-conversation AI platform similar to modern chat-based applications."
+
+
+
+
+
+
+git commit -m "refactor: update API documentation"
+
+- Improved validation and structure of authentication requests
+
+Documentation updates:
+- Updated OpenAPI (Swagger) spec to include email in registration
+- Added format validation for email field
+- Updated login request schema to use 'identifier' instead of only username
+
+This improves authentication flexibility and aligns the system with standard production practices."
+
+
+
+
+
+git commit -m "refactor: migrate vector storage from in-memory DB to ChromaDB for persistent semantic search
+
+- Replaced in-memory vectorDb array with ChromaDB persistent vector storage
+- Updated /search/text test route to use ChromaDB for semantic retrieval
+- Improved scalability by enabling disk-based vector persistence instead of runtime memory storage
+- Enhanced reliability of RAG pipeline by ensuring embeddings persist across server restarts
+- Prepared architecture for production-level retrieval system with external vector database integration
+
+Note:
+This change currently applies only to the test search route (searchRoutes.js) for validation before full system migration."
+
+
+start charomaDB on local server:
+
+docker run -p 8000:8000 chromadb/chroma
+
+
+
+use this code to, debug chromaDB. (use it on another code file, another terminal)
+
+import express from "express";
+import dotenv from "dotenv";
+import { getCollection } from "./d2-chroma.js";
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+
+/**
+ *  DEBUG ROUTE - View all data in Chroma
+ */
+app.get("/debug/all", async (req, res) => {
+  try {
+    const collection = await getCollection();
+
+    const data = await collection.get({
+      include: ["documents", "metadatas", "embeddings"]
+    });
+
+    res.json({
+      success: true,
+      count: data.ids.length,
+      data
+    });
+
+  } catch (err) {
+    console.error("Debug fetch error:", err);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch data"
+    });
+  }
+});
+
+/**
+ *  Basic route (optional)
+ */
+app.get("/", (req, res) => {
+  res.send("Chroma Debug Server Running");
+});
+
+/**
+ *  Start server
+ */
+const PORT = 3050;
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
+
+
+
+
+git commit -m "refactor(rag): migrate entire vector storage and retrieval system to ChromaDB
+
+- Replaced in-memory vectorDb across all modules with ChromaDB persistent vector database
+- Updated ingestion pipeline to store embeddings directly in ChromaDB collections
+- Refactored queryVectorDb to perform similarity search using ChromaDB instead of local arrays
+- Integrated ChromaDB into all RAG flows:
+  - Text search
+  - Image-based search
+  - Chat context retrieval
+- Ensured embeddings persist across server restarts, improving reliability and scalability
+- Added metadata support (e.g., filename, context) for structured retrieval
+- Improved separation of concerns between embedding generation and vector storage layer
+
+Impact:
+- Eliminates memory limitations of in-memory vector storage
+- Enables scalable and production-ready semantic search
+- Provides foundation for future enhancements (filtering, hybrid search, multi-user indexing)
+
+This completes the transition from prototype RAG implementation to a persistent vector-based architecture."
+
+
+
+feat: add admin file upload and automated RAG ingestion route
+
+- Implement POST /api/admin/upload-and-ingest endpoint to handle document uploads.
+- Integrate 'multer' middleware for disk storage management in the ./uploads/ directory.
+- Add logic to trigger the RAG ingestion pipeline immediately following a successful file upload.
+- Include basic console logging for tracking upload status and ingestion progress.
+- Note: Currently uses a temporary simplified route structure; future iterations will implement the static adminpass verification and environment-based pathing.
+
+
+feat: implement JWT-based admin authentication and secured RAG ingestion
+
+
+- Added Admin Mongoose model to store hashed credentials.
+- Implemented 'adminAuthRoutes' for registration and login:
+    - /register: Secured via ADMIN_SECRET environment variable and bcrypt password hashing.
+    - /login: Validates credentials and issues a 24h JWT access token.
+- Created 'authMiddleware' to verify JSON Web Tokens in the Authorization header.
+- Secured the '/upload-and-ingest' route:
+    - Integrated 'authMiddleware' to restrict access to authenticated admins only.
+    - Maintained 'multer' integration for document uploads to the ./uploads directory.
+- Refactored server.js route priority to correctly separate public auth routes from protected admin management routes.
+- Updated middleware to correctly map decoded JWT 'id' to the request object.
+
+
+
+docs: update OpenAPI/Swagger specification for admin auth and management
+
+- Added 'Admin Auth' and 'Admin Management' tags to Swagger UI.
+- Documented Admin registration and login endpoints under /api/admin/auth.
+- Added documentation for the protected /api/admin/upload-and-ingest endpoint.
+- Defined multipart/form-data requirements for document uploads.
+- Integrated JWT security requirements for all new administrative paths.
+- Updated API version to 2.1.0 to reflect multimodal admin capabilities.
+
+
+
+feat: implement rate-limiting middleware for API protection
+
+- Integrated 'express-rate-limit' package to manage request traffic.
+- Created a centralized rateLimiter middleware in src/middleware/rateLimiter.js.
+- Configured a 'chatRateLimiter' with a window of 1 minute and a maximum of 10 requests.
+- Successfully verified the middleware on a test route with a 429 "Too Many Requests" response.
+- Enabled 'standardHeaders' and 'legacyHeaders' for better client-side rate-limit tracking.
+
+
+feat: implement comprehensive rate limiting across all functional routes
+
+// 5 Messages Per 30 minutes
+// 3 Images per day
+// 5 documnets to ingest per day
+
+
+
+feat(admin): add route to list uploaded files and update swagger docs
+
+- Added GET /files endpoint to retrieve a list of all files in the /uploads directory.
+- Implemented fs/promises for non-blocking directory reading.
+- Secured the new route with verifyAdmin middleware.
+- Updated swagger.yml to include documentation for the file listing and upload endpoints.
+- Fixed a ReferenceError by properly importing the 'fs' module.
