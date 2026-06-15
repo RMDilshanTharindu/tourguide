@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # --- MONGO DATABASE ---
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+  # --- CHROMA VECTOR DATABASE ---
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+    networks:
+      - app-network
+
+  # --- BACKEND (Node.js) ---
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - ADMIN_SECRET=${ADMIN_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - CHROMA_HOST=${CHROMA_HOST}
+      - CHROMA_PORT=${CHROMA_PORT}
+    depends_on:
+      - mongodb
+      - chromadb
+    networks:
+      - app-network
+
+  # --- FRONTEND ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3030:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+# Persistent storage so you don't lose data when containers stop
+volumes:
+  mongo-data:
+  chroma-data:
+
+networks:
+  app-network:
+    driver: bridge
