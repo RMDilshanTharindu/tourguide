@@ -1,10 +1,4 @@
-Here is your completely updated `README.md`.
 
-I have overhauled the setup guide to prioritize **Docker Compose**, since it completely eliminates the need to manually install MongoDB, ChromaDB, or Node dependencies locally. I also updated the frontend section to reflect the new unified Nginx routing setup.
-
----
-
-```markdown
 ---
 # 🚀 TourGuide AI Full-Stack App
 
@@ -178,6 +172,4 @@ git push origin feature/your-feature-branch
 ✅ Multi-container Networking Setup Complete
 🚧 Continuous UI/UX and algorithmic improvements ongoing...
 
-```
 
-```
