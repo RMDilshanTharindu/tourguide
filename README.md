@@ -1,8 +1,14 @@
+Here is your completely updated `README.md`.
+
+I have overhauled the setup guide to prioritize **Docker Compose**, since it completely eliminates the need to manually install MongoDB, ChromaDB, or Node dependencies locally. I also updated the frontend section to reflect the new unified Nginx routing setup.
 
 ---
-# 🚀 TourGuide AI Backend
 
-A **Multimodal RAG (Retrieval-Augmented Generation) System** with:
+```markdown
+---
+# 🚀 TourGuide AI Full-Stack App
+
+A **Multimodal RAG (Retrieval-Augmented Generation) System** built with a containerized microservices architecture:
 
 - 💬 Multi-chat AI (ChatGPT-style)
 - 🖼️ Image understanding + contextual chat
@@ -11,94 +17,78 @@ A **Multimodal RAG (Retrieval-Augmented Generation) System** with:
 - 🔐 JWT Authentication
 - 🗄️ MongoDB for user & chat storage
 - 📡 Fully documented API (Swagger)
+- 🌐 Containerized Frontend & Backend routed via Nginx
 
 ---
 
-# ⚙️ Setup Guide
+# ⚙️ Setup Guide (Dockerized)
 
-##  Step 1: Clone Repository
+The easiest and fastest way to run this entire ecosystem (Frontend, Backend, MongoDB, and ChromaDB) is by using **Docker Compose**. You don't need to install Node, MongoDB, or ChromaDB on your local host system.
 
-Open CMD:
+## Step 1: Prerequisites
+
+Make sure you have the following installed on your machine:
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/) (includes Docker Compose)
+* Git
+
+---
+
+## Step 2: Clone the Repository
+
+Open your terminal or command prompt:
 
 ```bash
-git clone https://github.com/RMDilshanTharindu/tourguide
+git clone [https://github.com/RMDilshanTharindu/tourguide](https://github.com/RMDilshanTharindu/tourguide)
 cd tourguide
 code .
-````
 
----
-
-## Step 2: Install Backend Dependencies
-
-Open terminal in VS Code:
-
-```bash
-cd backend
-npm install
 ```
 
 ---
 
 ## Step 3: Environment Setup
 
-Create a `.env` file inside `backend/` and configure:
+Create a `.env` file in the **root directory** of the project (`tourguide/`). This file sits alongside the `docker-compose.yml` file. Configure it as follows:
 
-```
-MONGO_URI=your_mongodb_connection_string
+```env
+# Database & Infrastructure URLs
+MONGO_URI=mongodb://mongodb:27017/mydatabase
+CHROMA_HOST=chromadb
+CHROMA_PORT=8000
+
+# Application Configurations & Secrets
+PORT=3000
+JWT_SECRET=your_super_secret_jwt_key
 GEMINI_API_KEY=your_gemini_api_key
-JWT_SECRET=your_secret_key
+
 ```
 
-👉 Contact **Dilshan Tharindu** if you don’t have values.
+👉 *Contact **Dilshan Tharindu** if you don’t have API values.*
 
 ---
 
-##  Step 4: Run MongoDB
+## Step 4: Fire Up the Application Stack
 
-Open a new terminal (CMD):
+From the project root directory where `docker-compose.yml` is located, execute the following command:
 
 ```bash
-mongod
+docker compose up --build
+
 ```
+
+Docker will automatically pull the required MongoDB and ChromaDB instances, build your local frontend and backend images, link them on an isolated internal network, and boot up the system.
 
 ---
 
-##  Step 5: Run ChromaDB
+## Step 5: Accessing the Applications
 
-###  Option 1: Using Docker (Recommended)
+Once the terminal logs settle, open your web browser to access the ecosystem:
 
-```bash
-docker run -p 8000:8000 chromadb/chroma
-```
+* 🌐 **Frontend Application:** `http://localhost:3030` (or whichever port you mapped to Nginx)
+* 📡 **API Documentation (Swagger UI):** `http://localhost:3030/api/api-docs`
+* 🔌 **Direct Backend Access:** `http://localhost:3000`
 
----
-
-###  Option 2: Without Docker
-
-```bash
-pip install chromadb
-chroma run --host localhost --port 8000
-```
-
----
-
-##  Step 6: Start Backend Server
-
-Back to VS Code terminal:
-
-```bash
-node server.js
-```
-
----
-
-##  Step 7: Open API Documentation
-
-Go to:
-
-```
-http://localhost:3000/api-docs
-```
+> 💡 **Routing Tip:** Thanks to our integrated Nginx reverse proxy, all frontend routes work seamlessly (including refreshing on paths like `/admin`), and any request directed at `/api/*` is automatically forwarded directly to the backend service.
 
 ---
 
@@ -106,134 +96,88 @@ http://localhost:3000/api-docs
 
 ### 1️ Register
 
-* Open `/auth/register`
-* Provide:
-
-  * username
-  * email
-  * password
-
----
+* Open `/api/api-docs`
+* Locate `/auth/register`
+* Provide: `username`, `email`, and `password`
 
 ### 2️ Login
 
-* Open `/auth/login`
-* Copy the returned token
-
----
+* Run `/auth/login`
+* Copy the returned JWT token
 
 ### 3️ Authorize
 
-* Click **"Authorize 🔐"** (top-right)
-* Paste:
-
-```
-Bearer <your_token>
-```
-
----
+* Click **"Authorize 🔐"** (top-right of Swagger)
+* Paste: `Bearer <your_token>`
 
 ### 4️ Use APIs
 
-Now you can access:
+Now you can test protected paths securely:
 
 * `/chat`
 * `/chat/create`
-* `/chat/{chatId}`
 * `/image-search`
 
 ---
 
-#  Frontend Integration Guide
+# 🛠️ Git & Workflow Rules for Developers
 
-👉 Refer to the guide inside:
-
-```
-/frontend/
-```
-
----
-
-## ⚠️ Important Instructions for Frontend Developers
-
- Make sure you are inside the **root project folder (`tourguide/`)**, NOT inside `frontend/` or `backend/`, before running Git commands.
-
----
+Make sure you are inside the **root project folder (`tourguide/`)**, **NOT** inside `frontend/` or `backend/`, before executing Git commands.
 
 ### 🔀 Before starting work
 
 ```bash
-git checkout -b your-feature-branch
-````
+git checkout main
+git pull origin main
+git checkout -b feature/your-feature-branch
 
----
+```
 
 ### 💾 After finishing work
 
 ```bash
 git add .
-git commit -m "your message"
-git push origin your-feature-branch
+git commit -m "feat: description of changes matching conventional commits"
+git push origin feature/your-feature-branch
+
 ```
-
----
-
-### 🔄 Merge your work into main
-
-```bash
-git checkout main
-git pull origin main
-git merge your-feature-branch
-git push origin main
-```
-
----
-
-### ❗ Notes
-
-* ❌ Do NOT run Git commands inside `frontend/` or `backend/` folders
-* ❌ Do NOT modify backend code unless instructed
-* ✅ Always create a new branch for your work
-* ✅ Keep your branch names meaningful (e.g., `feature/chat-ui`, `fix/login-form`)
-
----
 
 ### ❗ Important Rules
 
-*  Do NOT modify backend code
-*  Follow API documentation strictly
-*  Use Bearer token for all protected routes
+* ❌ **Do NOT commit your local `.env` file.** It is already ignored in git, keep it that way.
+* ❌ Do NOT run Git commands inside sub-folders (`frontend/` or `backend/`).
+* ❌ Do NOT modify backend configurations or runtime structures unless instructed.
+* ✅ Always build/test locally using `docker compose up --build` before submitting code.
 
 ---
 
-#  System Architecture
+# 🧭 System Architecture
 
-* **LLM**: Gemini API
-* **Vector DB**: ChromaDB
-* **Database**: MongoDB
-* **Backend**: Node.js + Express
-* **Auth**: JWT
-
----
-
-#  Features
-
-* Multi-chat system (chatId-based)
-* Persistent chat history
-* Image → context → chat flow
-* RAG-based response generation
-* Secure API access
+* **Web Proxy & Server**: Nginx (serving static files and routing API calls)
+* **LLM / Embedding Engine**: Gemini API (`@google/genai`)
+* **Vector Database**: ChromaDB (isolated service)
+* **Database**: MongoDB (persistent volumes mapped locally)
+* **Backend Runtime**: Node.js + Express
+* **Frontend Runtime**: Single Page Application (SPA)
 
 ---
 
-#  Author
+# 👤 Authors
 
 **Dilshan Tharindu**
+**Sahan Kiridena**
+**Sidath Wasala**
+**Senith Karunarathna**
+**Madushaka Thilakarathna**
 
 ---
 
-#  Status
+# 📊 Status
 
-✅ Production-ready backend
-🚧 Continuous improvements ongoing....
+✅ Architecture Dockerized & Containerized
+✅ Multi-container Networking Setup Complete
+🚧 Continuous UI/UX and algorithmic improvements ongoing...
 
+```
+
+```
