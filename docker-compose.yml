@@ -1,15 +1,6 @@
 version: '3.8'
 
 services:
-  # --- MONGO DATABASE ---
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    networks:
-      - app-network
 
   # --- CHROMA VECTOR DATABASE ---
   chromadb:
@@ -36,7 +27,6 @@ services:
       - CHROMA_HOST=${CHROMA_HOST}
       - CHROMA_PORT=${CHROMA_PORT}
     depends_on:
-      - mongodb
       - chromadb
     networks:
       - app-network
