@@ -11,16 +11,6 @@ const ai = new GoogleGenAI({
 
 const folderPath = "./uploads";
 
-//embedding function
-// async function getEmbedding(text) {
-//   const response = await ai.models.embedContent({
-//     model: "gemini-embedding-2-preview",
-//     contents: [{ parts: [{ text }] }]
-//   });
-
-//   return response.embeddings[0].values;
-// }
-
 //chunking
 function chunkText(content, chunkSize = 500, overlap = 50) {
   const chunks = [];
@@ -37,7 +27,7 @@ function chunkText(content, chunkSize = 500, overlap = 50) {
 
 //ingestion pipeline
 export async function ingestion() {
-  //const vectorDb = []; // local DB (clean & safe)
+  
   const collection = await getCollection();
 
 
@@ -78,26 +68,7 @@ export async function ingestion() {
       
     }
   
-    // const items = await Promise.all(
-    //   chunks.map(async (text, index) => {
-    //     const embedding = await getEmbedding(text);
-
-    //     return {
-    //       id: `${file}-${index}`,
-    //       text,
-    //       embedding,
-    //       metadata: { filename: file }
-    //     };
-    //   })
-    // );
-    // for (const chunk of chunks){
-    //    const embedding = await getEmbedding(chunk);
-    //    console.log("SIZE:", embedding?.length);
-    //    embeddings.push(embedding);
-    // }
-    //vectorDb.push(...items);
-
-    //console.log(`Ingested: ${file} | chunks: ${chunks.length}`);
+    
   }
   console.log("DOCUMENTS:", documents.length);
   console.log("IDS:", ids.length);
